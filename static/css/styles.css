@@ -1,0 +1,238 @@
+/* Reset CSS */
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', Arial, sans-serif;
+    background: linear-gradient(to bottom, #a2d9ff, #ffffff);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden; /* Evita el desplazamiento horizontal */
+}
+
+/* Contenedor principal */
+.main-container {
+    flex: 1; /* Hace que el contenido principal ocupe todo el espacio disponible */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+/* Sección de la frase (izquierda) */
+.welcome-section {
+    flex: 1;
+    padding-right: 40px;
+    text-align: left;
+    animation: slideInLeft 1s ease-in-out;
+}
+
+.welcome-section h1 {
+    font-size: 36px;
+    color: #4da6e5;
+    margin-bottom: 20px;
+}
+
+.welcome-section h1 span {
+    font-weight: bold;
+}
+
+.welcome-section p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Sección del formulario */
+.login-container {
+    flex: 1;
+    max-width: 400px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    text-align: center;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.login-card img {
+    max-width: 120px;
+    margin: 0 auto 20px auto;
+    display: block;
+    border-radius: 50%;
+}
+
+.login-card h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #4da6e5;
+}
+
+.login-card .form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.login-card label {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+    text-align: center;
+    width: 100%;
+}
+
+.login-card input[type="text"],
+.login-card input[type="password"] {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    text-align: center;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.login-card input[type="text"]:focus,
+.login-card input[type="password"]:focus {
+    border-color: #4da6e5;
+    outline: none;
+    box-shadow: 0 0 10px rgba(77, 166, 229, 0.5);
+}
+
+.login-card button {
+    width: 100%;
+    padding: 14px;
+    background-color: #4da6e5;
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    margin-top: 15px;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.login-card button:hover {
+    background-color: #368fcb;
+}
+
+.login-card button:active {
+    transform: translateY(2px);
+}
+
+#errorMessage {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+    display: none;
+}
+
+/* Footer */
+.dashboard-footer {
+    width: 100%;
+    background-color: #4da6e5;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-top: auto; /* Empuja el footer al final */
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho total */
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-section {
+    flex: 1;
+    min-width: 200px;
+    text-align: left;
+}
+
+.footer-section h4 {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #ffffff;
+}
+
+.footer-section p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+.social-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.social-icon {
+    color: white;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.social-icon:hover {
+    color: #a2d9ff;
+}
+
+.footer-bottom {
+    border-top: 1px solid #a2d9ff;
+    padding-top: 10px;
+    font-size: 12px;
+    color: #e0e0e0;
+}
+
+/* Animaciones */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .welcome-section {
+        padding-right: 0;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .login-container {
+        max-width: 100%;
+    }
+}
