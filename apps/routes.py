@@ -63,7 +63,7 @@ def eliminar_cliente(id):
     return jsonify({"message": "Cliente eliminado exitosamente"}), 200
 
 
-### RUTAS DE INICIO Y LOGIN DE USUARIO
+### RUTAS DE INICIO Y LOGIN DE USUARIO --------------------------------------------------------------------
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -103,72 +103,45 @@ def login():
 
     usuario = Usuario.query.filter_by(email=data.get('email')).first()
     print(f"Usuario encontrado: {usuario}")  # Verifica si se encontró un usuario ---------
-
-    # Verifica si el usuario existe y si la contraseña es correcta
-    #if usuario and usuario.check_password(data.get('contrasena')):
-        #return jsonify({"message": "Inicio de sesión exitoso", "usuario_id": usuario.id, "tipo_usuario": usuario.tipo_usuario}), 200
+    
     if usuario and usuario.check_password(data.get('password')):
         return jsonify({"message": "Inicio de sesión exitoso"}), 200
     
     return jsonify({"error": "Credenciales inválidas"}), 401
 
+
+
+### RUTAS PARA REDIRIGIR A PAGINAS/TEMPLATES ----------------------------------------------------------------------------------
+
 @auth_bp.route('/')
 def login_page():
     return render_template('home.html')
 
-@auth_bp.route('/inicio', methods=['GET'])
-def inicio():
-    return render_template('inicioAdmin.html')  # Renderiza el archivo inicio.html
+
+# RUTAS PARA EL HOME  QUE DERIVAN EN EL INICIO SEGUN EL USUARIO
+@auth_bp.route('/inicioAdmin', methods=['GET'])
+def inicioAdmin():
+    return render_template('inicioAdmin.html')  # Renderiza el archivo inicioAdmin.html
+
+@auth_bp.route('/inicioTecnico', methods=['GET'])
+def inicioTecnico():
+    return render_template('inicioTecnico.html')  # Renderiza el archivo inicioTecnico.html
+
+@auth_bp.route('/inicioCliente', methods=['GET'])
+def inicioCliente():
+    return render_template('inicioCliente.html')  # Renderiza el archivo inicioCliente.html
 
 
 
+# RUTAS PARA EL INICIO DEL ADMINISTRADOR
+@auth_bp.route('/misServicios', methods=['GET'])
+def misServicios():
+    return render_template('misServicios.html')  # Renderiza el archivo serviciosAdmin.html
 
+@auth_bp.route('/gestionDeClientes', methods=['GET'])
+def gestionDeClientes():
+    return render_template('gestionDeClientes.html')  # Renderiza el archivo gestionDeClientes.html
 
-
-
-
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------------------
-
-### METODOS SIN UTILIZAR POR EL MOMENTO
-
-#@auth_bp.route('/login', methods=['POST'])
-#def login():
- #   """Autenticar un usuario y generar un token JWT"""
-  #  data = request.get_json()
-   # usuario = Usuario.query.filter_by(email=data.get('email')).first()
-#
- #   if usuario and usuario.check_password(data.get('contrasena')):
-  #      token = create_access_token(
-   #         identity= str(usuario.id),
-    #        additional_claims={"tipo": usuario.tipo_usuario})
-     #   return jsonify({"access_token": token}), 200
-
-    #return jsonify({"error": "Credenciales inválidas"}), 401
-
-#@cliente_bp.route('/clientes', methods=['GET'])
-#@jwt_required()
-#def obtener_clientes():
- #   usuario_actual = get_jwt_identity()
-  #  usuario_tipo = get_jwt()["tipo"]  # Obtener "tipo" de los additional_claims
-
-#    print(f"Usuario autenticado: ID {usuario_actual}, Tipo: {usuario_tipo}")  # Debug
-
-    # Verificar si el usuario tiene permisos de Admin
- #   if usuario_tipo != "Admin":
-  #      return jsonify({"error": "No tienes permisos para acceder a esta ruta"}), 403
-
-   # clientes = Cliente.query.all()
-    #return jsonify(clientes_schema.dump(clientes)), 200
-
-
-#@cliente_bp.route('/clientes', methods=['GET'])
-#@jwt_required()
-#def obtener_clientes():
-   # print("Token recibido:", get_jwt())
-    #usuario_actual = get_jwt_identity()
-    #if usuario_actual["tipo"] != "Admin":
-        #return jsonify({"error": "No tienes permisos para acceder a esta ruta"}), 403
- #   clientes = Cliente.query.all()
-  #  return jsonify(clientes_schema.dump(clientes)), 200
+@auth_bp.route('/gestionDeTecnicos', methods=['GET'])
+def gestionDeTecnicos():
+    return render_template('gestionDeTecnicos.html')  # Renderiza el archivo gestionDeTecnicos.html

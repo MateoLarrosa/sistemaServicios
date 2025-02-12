@@ -219,6 +219,33 @@ body, html {
     }
 }
 
+/* Animación de titileo */
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+/* Clase que activa el efecto cuando se inicia sesión */
+.logo.loading {
+    animation: blink 1s infinite ease-in-out;
+}
+
+/* Detener la animación cuando la página haya cargado */
+.logo.loaded {
+    animation: none;
+    opacity: 1; /* Asegura que el logo quede visible */
+}
+
+/* Estilo cuando el botón está deshabilitado */
+.btn-primary.loading {
+    background-color: #d3d3d3; /* Gris claro */
+    cursor: not-allowed;
+    color: #888;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-container {
