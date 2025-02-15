@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMessage = document.getElementById('errorMessage');
     const logo = document.querySelector('.logo');
     const submitButton = document.querySelector('.btn-primary');
-    const verServiciosBtn = document.getElementById('verServiciosBtn');
 
     // Función para mostrar mensajes de error
     const showError = (message) => {
@@ -13,18 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para limpiar los campos del formulario
     const clearFormFields = () => {
-        document.getElementById('email').value = "";
+        document.getElementById('nombreUsuario').value = "";
         document.getElementById('password').value = "";
     };
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault(); // Evita la recarga de la página
 
-        const email = document.getElementById('email').value.trim();
+        const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
         const password = document.getElementById('password').value.trim();
 
         // Validación básica
-        if (!email || !password) {
+        if (!nombreUsuario || !password) {
             showError("Por favor, completa todos los campos.");
             return;
         }
@@ -38,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ nombreUsuario, password }), // ✅ Enviar nombreUsuario en lugar de email
             });
 
             // **Aplica el setTimeout() en todos los casos**
@@ -49,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (response.ok) {
                     clearFormFields();
+                    sessionStorage.setItem("token", data.token); // Guardar token en sessionStorage
                     window.location.href = "/auth/inicioAdmin";
                 } else {
                     const data = await response.json();
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Limpia el mensaje de error cuando se empieza a escribir en los campos
-    document.getElementById('email').addEventListener('input', () => {
+    document.getElementById('nombreUsuario').addEventListener('input', () => {
         errorMessage.style.display = "none";
     });
 

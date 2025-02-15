@@ -1,12 +1,20 @@
 from marshmallow import Schema, fields, validate
 
 class ClienteSchema(Schema):
-    id = fields.Int(dump_only = True) # solo lectura
-    nombre = fields.Str(required=True, validate=validate.Length(min=2, max=100))
-    cuit_cuil = fields.Str(required=True, validate=validate.Length(equal=13))  # "XX-XXXXXXXX-X"
-    email = fields.Email(required=True)
-    telefono = fields.Str(required=True, validate=validate.Length(min=7, max=15))
-    direccion = fields.Str(required=True)
+    d = fields.Int(dump_only=True)
+    nombre = fields.Str(required=True)
+    cuit = fields.Str(required=True)  # 🔄 Antes era 'cuit_cuil'
+    mail = fields.Email(required=True)  # 🔄 Antes era 'email'
+    telefono = fields.Str(required=True)
+    calle = fields.Str(required=True)  # 🔄 Agregado
+    numero = fields.Str(required=True)  # 🔄 Agregado
+    direccion = fields.Str()  # ❌ Opcional
+    localidad = fields.Str(required=True)
+    provincia = fields.Str(required=True)
+    latitud = fields.Float()
+    longitud = fields.Float()
+    idUsuario = fields.Int()
+    razonSocial = fields.Str(required=True)
 
 cliente_schema = ClienteSchema()
 clientes_schema = ClienteSchema(many=True)

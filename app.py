@@ -1,28 +1,33 @@
-#from flask_jwt_extended import JWTManager
-#from flask_jwt_extended.exceptions import JWTExtendedException
+from flask_jwt_extended.exceptions import JWTExtendedException
 from dotenv import load_dotenv
+from flask_jwt_extended import JWTManager
 from flask import Flask #, jsonify
+from flask_migrate import Migrate
 from config import Config
 from apps.database import db
-from flask_migrate import Migrate
 from apps.routes import cliente_bp, auth_bp # Importar el Blueprint
 
 load_dotenv()
 
 # Inicializar Flask
 app = Flask(__name__, static_folder='static', template_folder='templates')
-#app.config.from_object(Config)
-app.config.from_object('config.Config')
+
+
 # Inicializar Flask-Migrate
 migrate = Migrate(app, db)
+
+app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
+
+# Inicializar JWT
+jwt = JWTManager(app)
+
+#app.config.from_object(Config)
+app.config.from_object('config.Config')
 
 # Inicializar la base de datos
 db.init_app(app)
 
-# Inicializar JWT
-#jwt = JWTManager(app)
 
-#app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
 
 # Registrar el Blueprint
 app.register_blueprint(cliente_bp, url_prefix='/')  # Para rutas generales

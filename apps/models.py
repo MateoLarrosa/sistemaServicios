@@ -196,7 +196,7 @@ class Cliente(db.Model):
     provincia = db.Column(db.String(100, collation='Latin1_General_CI_AS'))
     latitud = db.Column(db.Float)
     longitud = db.Column(db.Float)
-    nroActivo = db.Column(db.Integer)
+    razonSocial = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     idUsuario = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete='SET NULL'))
 
 class Local(db.Model):
