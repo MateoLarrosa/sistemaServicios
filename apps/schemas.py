@@ -18,3 +18,12 @@ class ClienteSchema(Schema):
 
 cliente_schema = ClienteSchema()
 clientes_schema = ClienteSchema(many=True)
+
+class UsuarioSchema(Schema):
+    id = fields.Int()
+    nombreUsuario = fields.Str()
+    tipoUsuario = fields.Str()
+    estado = fields.Bool()
+
+usuario_schema = UsuarioSchema()
+usuarios_schema = UsuarioSchema(many=True)

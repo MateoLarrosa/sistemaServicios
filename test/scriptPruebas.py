@@ -15,3 +15,15 @@
      #   print(f"Error al conectar a la base de datos: {e}")
 
 
+import sys
+import os
+
+# Agregar el directorio raíz al sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Ahora importa utils
+from utils import cargar_casos_auditoria
+from app import app
+
+with app.app_context():
+  cargar_casos_auditoria()

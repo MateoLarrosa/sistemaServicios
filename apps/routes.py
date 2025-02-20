@@ -1,10 +1,11 @@
 import re
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
 from flask import Blueprint, request, jsonify, render_template
 from apps.database import db
 from apps.models import Cliente, Usuario
 from apps.schemas import cliente_schema, clientes_schema
-from utils import admin_required
+from utils import admin_required, registrar_evento_auditoria
+from datetime import datetime, timedelta
 
 cliente_bp = Blueprint('cliente', __name__)
 
@@ -46,6 +47,7 @@ def obtener_cliente(id):
         return jsonify({"error": "Cliente no encontrado"}), 404
 
     return jsonify(cliente_schema.dump(cliente)), 200
+
 
 
 @cliente_bp.route('/clientes', methods=['POST'])
@@ -188,34 +190,142 @@ def register():
     return jsonify({"message": "Usuario registrado exitosamente"}), 201
 
 
+
+
+## REFRESH TOKEN
+ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)  # Expira en 15 minutos
+REFRESH_TOKEN_EXPIRES = timedelta(days=7)
+
+## VARIABLES PARA EL CONTROL DE LOGIN FORZADO
+MAX_INTENTOS_LOGIN = 5
+TIEMPO_BLOQUEO_MINUTOS = 10
+
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    """Autenticar un usuario sin generar un token"""
+    """Autenticar un usuario con protección contra fuerza bruta y refresh token"""
     data = request.get_json()
-    print(f"Datos recibidos: {data}") # Log para ver los datos en consola ----------
+
+    id_cliente = None
+    id_tecnico = None
+
+    print(f"Datos recibidos: {data}")  # Log para ver los datos en consola
 
     if not data or not data.get('nombreUsuario') or not data.get('password'):
-        return jsonify({"error": "usuario y contraseña son requeridos"}), 400
+        return respuesta_con_auditoria(
+            401, 
+            "Error al iniciar sesión, faltó completar un campo", 
+            id_caso=2
+        )
 
     usuario = Usuario.query.filter_by(nombreUsuario=data.get('nombreUsuario')).first()
-    print(f"Usuario encontrado: {usuario}")  # Verifica si se encontró un usuario ---------
+    print(f"Usuario encontrado: {usuario}")  # Verifica si se encontró un usuario
     
-    if usuario:
-        if usuario.check_password(data.get('password')):  # Verifica la contraseña con el hash
-            accessToken = create_access_token(
-                identity= str(usuario.id), 
-                additional_claims={"tipoUsuario": usuario.tipoUsuario}
-                )
-            #accessToken = create_access_token(identity=str(usuario.id))
+    if not usuario:
+        return respuesta_con_auditoria(
+            401, 
+            f"No existe nombre de usuario ingresado = '{data.get('nombreUsuario')}'", 
+            id_caso=2
+        )
 
-            return jsonify({"message": "Inicio de sesión exitoso", "token": accessToken}), 200
+    # Identificar si es Cliente o Técnico (el Admin queda NULL)
+    if usuario.tipoUsuario == "Cliente":
+        cliente = Cliente.query.filter_by(idUsuario=usuario.id).first()
+        if cliente:
+            id_cliente = cliente.id
+
+    elif usuario.tipoUsuario == "Tecnico":
+        tecnico = tecnico.query.filter_by(idUsuario=usuario.id).first()
+        if tecnico:
+            id_tecnico = tecnico.id
+
+    # Verificar si la cuenta está bloqueada
+    if usuario.bloqueado:
+        tiempo_desbloqueo = usuario.ultimo_acceso + timedelta(minutes=TIEMPO_BLOQUEO_MINUTOS)
+        if datetime.utcnow() < tiempo_desbloqueo:
+            return respuesta_con_auditoria(
+                403, 
+                f"Usuario {usuario.id} intentó iniciar sesión pero está bloqueado", 
+                id_caso=2, 
+                usuario=usuario, 
+                id_cliente=id_cliente, 
+                id_tecnico=id_tecnico
+            )
         else:
-            print("Contraseña incorrecta")  # Depuración
-            return jsonify({"error": "Credenciales inválidas"}), 401
-    else:
-        print("Usuario no encontrado")  # Depuración
-        return jsonify({"error": "Credenciales inválidas"}), 401
+            usuario.bloqueado = False  # Desbloquear si ya pasó el tiempo
+            usuario.intentosLogin = 0  # Reiniciar intentos fallidos
 
+    # Verificar la contraseña
+    if usuario.check_password(data.get('password')):
+        usuario.intentosLogin = 0  # Reiniciar intentos fallidos
+        usuario.ultimo_acceso = datetime.utcnow()
+
+        # Generar access token y refresh token
+        accessToken = create_access_token(
+            identity=str(usuario.id),
+            additional_claims={"tipoUsuario": usuario.tipoUsuario},
+            expires_delta=ACCESS_TOKEN_EXPIRES
+        )
+
+        refreshToken = create_refresh_token(
+            identity=str(usuario.id),
+            additional_claims={"tipoUsuario": usuario.tipoUsuario},
+            expires_delta=REFRESH_TOKEN_EXPIRES
+        )
+
+        db.session.commit()
+
+        # 🔹 **Registrar en auditoría**
+        registrar_evento_auditoria(
+            id_caso=1, 
+            id_usuario=usuario.id, 
+            id_cliente=id_cliente,
+            id_tecnico=id_tecnico,
+            detalle=f"Inicio de sesión exitoso para {usuario.nombreUsuario}"
+        )
+
+        return jsonify({
+            "message": "Inicio de sesión exitoso",
+            "access_token": accessToken,
+            "refresh_token": refreshToken
+        }), 200
+
+    # Incrementar intentos fallidos y bloquear si es necesario
+    usuario.intentosLogin += 1
+    if usuario.intentosLogin >= MAX_INTENTOS_LOGIN:
+        usuario.bloqueado = True
+        usuario.ultimo_acceso = datetime.utcnow()  # Guardamos el momento del bloqueo
+        db.session.commit()
+        return respuesta_con_auditoria(
+            403, 
+            f"Usuario {usuario.id} fue bloqueado por {TIEMPO_BLOQUEO_MINUTOS} minutos", 
+            id_caso=2, 
+            usuario=usuario, 
+            id_cliente=id_cliente, 
+            id_tecnico=id_tecnico
+        )
+
+    db.session.commit()
+
+    return respuesta_con_auditoria(
+        401, 
+        "Credenciales inválidas", 
+        id_caso=2, 
+        usuario=usuario, 
+        id_cliente=id_cliente, 
+        id_tecnico=id_tecnico
+    )
+
+
+def respuesta_con_auditoria(codigo_http, mensaje, id_caso, usuario=None, id_cliente=None, id_tecnico=None):
+    """Función para registrar en auditoría antes de devolver la respuesta"""
+    registrar_evento_auditoria(
+        id_caso=id_caso,
+        id_usuario=usuario.id if usuario else None,
+        id_cliente=id_cliente,
+        id_tecnico=id_tecnico,
+        detalle=mensaje
+    )
+    return jsonify({"error": mensaje}), codigo_http
 
 
 ### RUTAS PARA REDIRIGIR A PAGINAS/TEMPLATES ----------------------------------------------------------------------------------
@@ -237,6 +347,22 @@ def inicioTecnico():
 @auth_bp.route('/inicioCliente', methods=['GET'])
 def inicioCliente():
     return render_template('inicioCliente.html')  # Renderiza el archivo inicioCliente.html
+
+## ------------------- NUEVA RUTA PARA GENERAR EL REFRESH TOKEN
+
+@auth_bp.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)  # Solo permite el uso del Refresh Token
+def refresh():
+    """Generar un nuevo Access Token usando el Refresh Token"""
+    usuario_id = get_jwt_identity()
+
+    nuevo_access_token = create_access_token(
+        identity=usuario_id,
+        additional_claims={"tipoUsuario": "Admin"},
+        expires_delta=timedelta(minutes=15)  # Nuevo Access Token por 15 min
+    )
+
+    return jsonify({"access_token": nuevo_access_token}), 200
 
 
 
