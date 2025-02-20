@@ -6,9 +6,9 @@ from apps.models import Cliente, Usuario
 from apps.schemas import cliente_schema, clientes_schema
 from utils import admin_required, registrar_evento_auditoria
 from datetime import datetime, timedelta
+from apps.monitoring import usuarios_activos, time, monitoreo_bp
 
 cliente_bp = Blueprint('cliente', __name__)
-
 @cliente_bp.route('/auth')
 
 
@@ -265,6 +265,9 @@ def login():
             additional_claims={"tipoUsuario": usuario.tipoUsuario},
             expires_delta=ACCESS_TOKEN_EXPIRES
         )
+
+        # Registrar al usuario como activo en el monitoreo
+        usuarios_activos[str(usuario.id)] = time.time()
 
         refreshToken = create_refresh_token(
             identity=str(usuario.id),
