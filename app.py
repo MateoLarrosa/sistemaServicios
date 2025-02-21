@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from config import Config
 from apps.database import db
 from apps.routes import cliente_bp, auth_bp # Importar el Blueprint
+from apps.monitoring import monitoreo_bp
 
 load_dotenv()
 
@@ -32,6 +33,7 @@ db.init_app(app)
 # Registrar el Blueprint
 app.register_blueprint(cliente_bp, url_prefix='/')  # Para rutas generales
 app.register_blueprint(auth_bp, url_prefix='/auth')  # Para autenticación
+app.register_blueprint(monitoreo_bp, url_prefix='/')
 
 
 @app.route('/')

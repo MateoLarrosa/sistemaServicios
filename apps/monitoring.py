@@ -2,6 +2,7 @@ import psutil
 import time
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from apps.models import Usuario
 
 monitoreo_bp = Blueprint('monitoreo', __name__)
 
@@ -12,13 +13,24 @@ usuarios_activos = {}
 TIEMPO_USUARIO_ACTIVO = 300  # 5 minutos
 
 @monitoreo_bp.route('/monitoreo', methods=['GET'])
+
 @jwt_required()
 def obtener_monitoreo():
     """ Devuelve el estado actual del sistema y el número de usuarios activos. """
     usuario_id = get_jwt_identity()
+
+     # Obtener el usuario desde la base de datos
+    usuario = Usuario.query.get(usuario_id)
+
+    # Verificar si el usuario es "mateoAdmin"
+    if usuario.nombreUsuario != "mateoAdmin":
+        return jsonify({"error": "Acceso no autorizado."}), 403
+
+
     tiempo_actual = time.time()
     
     # Registrar al usuario como activo
+    global usuarios_activos
     usuarios_activos[usuario_id] = tiempo_actual
 
     # Limpiar usuarios inactivos

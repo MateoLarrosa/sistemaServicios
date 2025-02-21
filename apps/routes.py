@@ -2,7 +2,7 @@ import re
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
 from flask import Blueprint, request, jsonify, render_template
 from apps.database import db
-from apps.models import Cliente, Usuario
+from apps.models import Cliente, Usuario, Tecnico
 from apps.schemas import cliente_schema, clientes_schema
 from utils import admin_required, registrar_evento_auditoria
 from datetime import datetime, timedelta
@@ -155,7 +155,7 @@ def eliminar_cliente(id):
 
 ### RUTAS DE INICIO Y LOGIN DE USUARIO + FUNCIONES PARA VERIFICAR DATOS --------------------------------------------------------------------
 
-auth_bp = Blueprint('auth', __name__)
+#auth_bp = Blueprint('auth', __name__)
 
 from flask import Blueprint, request, jsonify
 from apps.database import db
@@ -234,7 +234,7 @@ def login():
             id_cliente = cliente.id
 
     elif usuario.tipoUsuario == "Tecnico":
-        tecnico = tecnico.query.filter_by(idUsuario=usuario.id).first()
+        tecnico = Tecnico.query.filter_by(idUsuario=usuario.id).first()
         if tecnico:
             id_tecnico = tecnico.id
 
@@ -323,7 +323,7 @@ def respuesta_con_auditoria(codigo_http, mensaje, id_caso, usuario=None, id_clie
     """Función para registrar en auditoría antes de devolver la respuesta"""
     registrar_evento_auditoria(
         id_caso=id_caso,
-        id_usuario=usuario.id if usuario else None,
+        id_usuario=getattr(usuario, 'id', None),
         id_cliente=id_cliente,
         id_tecnico=id_tecnico,
         detalle=mensaje
@@ -358,11 +358,14 @@ def inicioCliente():
 def refresh():
     """Generar un nuevo Access Token usando el Refresh Token"""
     usuario_id = get_jwt_identity()
+    usuario = Usuario.query.get(usuario_id)
+    if not usuario:
+        return jsonify({"error": "Usuario no encontrado"}), 404
 
     nuevo_access_token = create_access_token(
         identity=usuario_id,
-        additional_claims={"tipoUsuario": "Admin"},
-        expires_delta=timedelta(minutes=15)  # Nuevo Access Token por 15 min
+        additional_claims={"tipoUsuario": usuario.tipoUsuario},  # Usar el tipo de usuario real
+        expires_delta=timedelta(minutes=15)
     )
 
     return jsonify({"access_token": nuevo_access_token}), 200
