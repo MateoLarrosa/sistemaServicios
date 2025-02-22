@@ -5,12 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.querySelector('.main-content');
 
     toggleBtn.addEventListener('click', () => {
-        sidebar.style.left = sidebar.style.left === '0px' ? '-250px' : '0px';
+        sidebar.classList.toggle('open');
         mainContent.classList.toggle('open');
     });
 
     closeBtn.addEventListener('click', () => {
-        sidebar.style.left = '-250px';
+        sidebar.classList.remove('open');
         mainContent.classList.remove('open');
     });
 });

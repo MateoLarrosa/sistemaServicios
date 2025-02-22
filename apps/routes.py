@@ -12,6 +12,10 @@ cliente_bp = Blueprint('cliente', __name__)
 @cliente_bp.route('/auth')
 
 
+def login_page():
+    return render_template('home.html')
+
+
 def validar_mail(mail):
     """Valida que el mail tenga un formato correcto"""
     patron = r"[\w\.-]+@[\w\.-]+\.\w+$"
@@ -21,10 +25,6 @@ def validar_cuit(cuil):
 
     """Valida que el CUIT tenga el formato correcto(11 numeros sin guiones)"""
     return re.match(r"\d{11}", cuil)
-
-
-def login_page():
-    return render_template('home.html')
 
 @cliente_bp.route('/clientes/<int:id>', methods=['GET'])
 @jwt_required()
@@ -333,23 +333,16 @@ def respuesta_con_auditoria(codigo_http, mensaje, id_caso, usuario=None, id_clie
 
 ### RUTAS PARA REDIRIGIR A PAGINAS/TEMPLATES ----------------------------------------------------------------------------------
 
+
 @auth_bp.route('/')
 def login_page():
     return render_template('home.html')
 
 
 # RUTAS PARA EL HOME  QUE DERIVAN EN EL INICIO SEGUN EL USUARIO
-@auth_bp.route('/inicioAdmin', methods=['GET'])
+@auth_bp.route('/inicio', methods=['GET'])
 def inicioAdmin():
-    return render_template('inicioAdmin.html')  # Renderiza el archivo inicioAdmin.html
-
-@auth_bp.route('/inicioTecnico', methods=['GET'])
-def inicioTecnico():
-    return render_template('inicioTecnico.html')  # Renderiza el archivo inicioTecnico.html
-
-@auth_bp.route('/inicioCliente', methods=['GET'])
-def inicioCliente():
-    return render_template('inicioCliente.html')  # Renderiza el archivo inicioCliente.html
+    return render_template('inicio.html')  # Renderiza el archivo inicioAdmin.html
 
 ## ------------------- NUEVA RUTA PARA GENERAR EL REFRESH TOKEN
 
@@ -376,11 +369,3 @@ def refresh():
 @auth_bp.route('/misServicios', methods=['GET'])
 def misServicios():
     return render_template('misServicios.html')  # Renderiza el archivo serviciosAdmin.html
-
-@auth_bp.route('/gestionDeClientes', methods=['GET'])
-def gestionDeClientes():
-    return render_template('gestionDeClientes.html')  # Renderiza el archivo gestionDeClientes.html
-
-@auth_bp.route('/gestionDeTecnicos', methods=['GET'])
-def gestionDeTecnicos():
-    return render_template('gestionDeTecnicos.html')  # Renderiza el archivo gestionDeTecnicos.html

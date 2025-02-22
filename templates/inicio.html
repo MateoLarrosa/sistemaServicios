@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Services for Business Groups{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/inicio.css">
+{% endblock %}
+
+{% block content %}
+<main class="dashboard-main">
+    <section class="welcome-section text-center">
+        <div class="welcome-content">
+            <h2>Bienvenido, Administrador</h2>
+            <p>Explora y gestiona todos los módulos del sistema.</p>
+            <div class="welcome-stats">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <h3>20</h3>
+                    <p>Usuarios totales</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-tasks"></i>
+                    <h3>36</h3>
+                    <p>Órdenes de trabajo</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>18</h3>
+                    <p>Formularios creados</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="modules-section">
+        <div class="module-card">
+            <i class="fas fa-tools module-icon"></i>
+            <h3>Gestión de Servicios</h3>
+            <p>Administra y asigna servicios técnicos.</p>
+            <a href="#" id="verServiciosBtn" class="btn btn-primary">Ver Servicios</a>
+        </div>
+        <div class="module-card">
+            <i class="fas fa-user-cog module-icon"></i>
+            <h3>Gestión de Técnicos</h3>
+            <p>Consulta y actualiza el estado de los técnicos.</p>
+            <a href="#" id="verTecnicosBtn" class="btn btn-primary">Ver Técnicos</a>
+        </div>
+        <div class="module-card">
+            <i class="fas fa-users module-icon"></i>
+            <h3>Gestión de Clientes</h3>
+            <p>Administra la información de los clientes.</p>
+            <a href="#" id="verClientesBtn" class="btn btn-primary">Ver Clientes</a>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/inicio.js"></script>
+{% endblock %}

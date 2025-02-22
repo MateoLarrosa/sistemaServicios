@@ -45,16 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 logo.classList.remove('loading');
                 submitButton.classList.remove('loading');
                 submitButton.disabled = false;
-
+                const data = await response.json();
                 if (response.ok) {
                     clearFormFields();
                     sessionStorage.setItem("token", data.token); // Guardar token en sessionStorage
-                    window.location.href = "/auth/inicioAdmin";
+                    window.location.href = "/auth/inicio";
                 } else {
-                    const data = await response.json();
+                    /* const data = await response.json(); */
                     showError(data.error || "Credenciales inválidas. Inténtalo de nuevo.");
                 }
-            }, 2500); // Retraso de 2.5 segundos
+            }, 1500); // Retraso de 1.5 segundos
         } catch (error) {
             console.error('Error en el inicio de sesión:', error);
             setTimeout(() => {
