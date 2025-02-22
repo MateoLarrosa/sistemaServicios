@@ -1,7 +1,7 @@
 from flask_bcrypt import generate_password_hash, check_password_hash
 from apps.database import db
 
-class Usuario(db.Model):
+""" class Usuario(db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
     nombreUsuario = db.Column(db.String(100, collation='Latin1_General_CI_AS'), nullable=False)
@@ -16,13 +16,31 @@ class Usuario(db.Model):
         self.contrasena_hash = generate_password_hash(password).decode('utf-8')
 
     def check_password(self, password):
+        return check_password_hash(self.contrasena_hash, password) """
+
+class Usuario(db.Model):
+    __tablename__ = 'usuarios'
+    id = db.Column(db.Integer, primary_key=True)
+    nombreUsuario = db.Column(db.String(100, collation='Latin1_General_CI_AS'), nullable=False, unique=True)
+    contrasena_hash = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    tipoUsuario = db.Column(db.String(50, collation='Latin1_General_CI_AS'), nullable=False)
+    estado = db.Column(db.Boolean, default=True)
+    ultimo_acceso = db.Column(db.DateTime)
+    intentosLogin = db.Column(db.Integer, default=0)
+    bloqueado = db.Column(db.Boolean, default=False)
+
+    def set_password(self, password):
+        self.contrasena_hash = generate_password_hash(password).decode('utf-8')
+
+    def check_password(self, password):
         return check_password_hash(self.contrasena_hash, password)
+
 
 class Cliente(db.Model):
     __tablename__ = 'clientes'
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100, collation='Latin1_General_CI_AS'), nullable=False)
-    cuit = db.Column(db.String(20, collation='Latin1_General_CI_AS'), nullable=False, unique=True)
+    cuit = db.Column(db.String(20, collation='Latin1_General_CI_AS'),unique=True, nullable=False)
     mail = db.Column(db.String(100, collation='Latin1_General_CI_AS'), unique=True, nullable=False)
     telefono = db.Column(db.String(20, collation='Latin1_General_CI_AS'), nullable=False)
     calle = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
@@ -33,6 +51,8 @@ class Cliente(db.Model):
     longitud = db.Column(db.Float)
     razonSocial = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     idUsuario = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete='SET NULL'))
+    nroCliente = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    
 
 class Local(db.Model):
     __tablename__ = 'locales'
@@ -40,8 +60,10 @@ class Local(db.Model):
     telefono = db.Column(db.String(20, collation='Latin1_General_CI_AS'))
     nombre = db.Column(db.String(100, collation='Latin1_General_CI_AS'), nullable=False)
     direccion = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    entreCalle = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     localidad = db.Column(db.String(100, collation='Latin1_General_CI_AS'), nullable=False)
     provincia = db.Column(db.String(100, collation='Latin1_General_CI_AS'))
+    horarioAtencion = db.Column(db.String(100, collation='Latin1_General_CI_AS'))
     contacto = db.Column(db.String(100, collation='Latin1_General_CI_AS'))
     latitud = db.Column(db.Float)
     longitud = db.Column(db.Float)
@@ -89,6 +111,21 @@ class Servicio(db.Model):
     tipo_tarea = db.Column(db.String(100, collation='Latin1_General_CI_AS'), nullable=False)
     descripcion = db.Column(db.Text(collation='Latin1_General_CI_AS'))
 
+""" class Activo(db.Model):
+    __tablename__ = 'activos'
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100, collation='Latin1_General_CI_AS'), nullable=False)
+    idLocal = db.Column(db.Integer, db.ForeignKey('locales.id', ondelete='SET NULL'))
+    modelo = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
+    marca = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
+    logo = db.Column(db.String(255, collation='Latin1_General_CI_AS'))
+    descripcion = db.Column(db.Text(collation='Latin1_General_CI_AS'))
+    nroSerie = db.Column(db.String(100, collation='Latin1_General_CI_AS')) # , unique=True
+    nroActivo = db.Column(db.Integer)
+    estado = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
+    voltaje = db.Column(db.Float)
+    poseeTierra = db.Column(db.Boolean, default=False) """
+
 class Activo(db.Model):
     __tablename__ = 'activos'
     id = db.Column(db.Integer, primary_key=True)
@@ -98,7 +135,7 @@ class Activo(db.Model):
     marca = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
     logo = db.Column(db.String(255, collation='Latin1_General_CI_AS'))
     descripcion = db.Column(db.Text(collation='Latin1_General_CI_AS'))
-    nroSerie = db.Column(db.String(100, collation='Latin1_General_CI_AS'), unique=True)
+    nroSerie = db.Column(db.String(100, collation='Latin1_General_CI_AS'), unique=True, nullable=True)
     nroActivo = db.Column(db.Integer)
     estado = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
     voltaje = db.Column(db.Float)
@@ -133,7 +170,7 @@ class FirmaOrdenDeTrabajo(db.Model):
 class CasoAuditoria(db.Model):
     __tablename__ = 'casos_auditoria'
     id = db.Column(db.Integer, primary_key=True)
-    descripcion = db.Column(db.String(255), nullable=False, unique=True)
+    descripcion = db.Column(db.String(255), nullable=False ) # ,unique=True
 
 class Auditoria(db.Model):
     __tablename__ = 'auditoria'
@@ -151,3 +188,11 @@ class Auditoria(db.Model):
     usuario = db.relationship('Usuario', backref='auditorias')
     cliente = db.relationship('Cliente', backref='auditorias')
     tecnico = db.relationship('Tecnico', backref='auditorias')
+
+class EquiposDeFrio(db.Model):
+    __tableName__ = 'equiposDeFrio'
+    id = db.Column(db.Integer, primary_key=True)
+    segmento = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    marca = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    modelo = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    puerta = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
