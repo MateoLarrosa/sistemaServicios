@@ -85,6 +85,16 @@ class HorarioTecnico(db.Model):
     horaInicio = db.Column(db.Time, nullable=False)
     horaFin = db.Column(db.Time, nullable=False)
 
+
+class solicitudServicio(db.Model):
+    __tableName__ = 'solicitud_servicio'
+    id = db.Column(db.Integer, primary_key=True)
+    idCliente = db.Column(db.Integer, db.ForeignKey('clientes.id', ondelete='SET NULL'))
+    idActivo = db.Column(db.Integer, db.ForeignKey('activos.id', ondelete='SET NULL'))
+    idLocal = db.Column(db.Integer, db.ForeignKey('locales.id', ondelete='SET NULL'))
+    falla = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+
+
 class OrdenDeTrabajo(db.Model):
     __tablename__ = 'ordenes_de_trabajo'
     id = db.Column(db.Integer, primary_key=True)
@@ -101,6 +111,7 @@ class OrdenDeTrabajo(db.Model):
     id_tecnico = db.Column(db.Integer, db.ForeignKey('tecnicos.id', ondelete='SET NULL'))
     id_local = db.Column(db.Integer, db.ForeignKey('locales.id', ondelete='SET NULL'))
     id_activo = db.Column(db.Integer, db.ForeignKey('activos.id', ondelete='SET NULL'))
+    id_solicitud = db.Column(db.Integer, db.ForeignKey('solicitud_servicio.id', ondelete='SET NULL'))
     comentario = db.Column(db.Text(collation='Latin1_General_CI_AS'))
     fue_arreglado = db.Column(db.Boolean, default=False)
 
@@ -196,3 +207,4 @@ class EquiposDeFrio(db.Model):
     marca = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     modelo = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     puerta = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+

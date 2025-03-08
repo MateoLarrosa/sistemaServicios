@@ -3,7 +3,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response, current_app
 from apps.database import db
-from apps.models import Cliente, Usuario, Tecnico
+from apps.models import Cliente, Usuario, Tecnico, Local, Activo, OrdenDeTrabajo, solicitudServicio
 from apps.schemas import cliente_schema, clientes_schema
 from utils import admin_required, registrar_evento_auditoria, validar_cuit, validar_mail
 from datetime import datetime, timedelta
@@ -386,14 +386,91 @@ def inicioTecnico():
     return render_template('inicio.html', userType=current_user['tipoUsuario'], userName = current_user['nombreUsuario'])
 
 
-@auth_bp.route('/solicitudServicio', methods=['GET'])
 
+
+######### SOLICITUD SERVICIO TECNICO -----------------------------------------------------------------------
+
+
+@auth_bp.route('/solicitudServicio', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def solicitudServicio():
     return render_template('solicitudServicio.html')  # Renderiza el archivo solicitudServicio.html
 
 
+@auth_bp.route('/registrarSolicitudServicio', methods=['POST'])
+@jwt_required(locations=["cookies"])
+def registrarSolicitudServicio():
 
+    data = request.form
+
+    """ cliente = Cliente(
+        nro_Cliente = request.form['nroCliente'],
+        razon_social = request.form['razonSocial'],
+    ) """
+
+    cliente = Cliente.query.filter_by(idUsuario=get_jwt_identity()).first()
+
+    nroClienteBD = cliente.nroCliente
+    razonSocialBD = cliente.razonSocial
+
+    if nroClienteBD == request.form['nroCliente'] and razonSocialBD == request.form['razonSocial']:
+
+        local = Local(
+            horarioAtencion = request.form['horarioAtencion'],
+            direccion = request.form['calle'],
+            entreCalle = request.form['entreCalle'],
+            localidad = request.form['localidad'],
+            provincia = request.form['provincia'],
+            latitud = 0,  ## ver como llenar, por el momento 0
+            longitud = 0, ## ver como llear, por el momento 0
+            contacto = request.form['contactoPdv'],
+            telefono = request.form['telefono'],
+            nombre = request.form['nombrePdv'],
+        )
+
+        Activo(
+            nroActivo = request.form['nroActivo'],
+            marca = request.form['marca'],
+            modelo = request.form['modelo'],
+            nroSerie = request.form['nroSerie'],
+            logo = request.form['logo'],
+            falla = request.form['falla'],
+        )
+    else:
+        return jsonify({"error": "Los datos ingresados no coinciden con los datos del cliente"}), 400
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Otras rutas
 
 @auth_bp.route('/redireccionar', methods=['GET'])
 @jwt_required()

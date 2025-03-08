@@ -20,7 +20,7 @@
         <!-- Contenedor del formulario (oculto inicialmente) -->
         <div id="formContainer" style="display: none;">
             <!-- Formulario dividido en 4 secciones -->
-            <form id="solicitudForm" class="solicitud-form">
+            <form id="solicitudForm" action="/auth/registrarSolicitudServicio" method="POST" class="solicitud-form">
                 <!-- Sección 1: Datos de la solicitud -->
                 <div class="form-section">
                     <div class="form-group">
@@ -36,28 +36,34 @@
                 <!-- Sección 2: Datos del cliente -->
                 <div class="form-section">
                     <div class="form-group">
-                        <label for="nro_cliente">Número de cliente:</label>
-                        <input type="text" id="nro_cliente" name="nro_cliente" required>
+                        <label for="nroCliente">Número de cliente:</label>
+                        <input type="text" id="nroCliente" name="nroCliente" required>
                     </div>
                     <div class="form-group">
                         <label for="razon_social">Razón social:</label>
                         <input type="text" id="razon_social" name="razon_social" required>
                     </div>
-                    <div class="form-group">
-                        <label for="horario_atencion">Horario de atención:</label>
-                        <input type="text" id="horario_atencion" name="horario_atencion" required>
-                    </div>
                 </div>
 
                 <!-- Sección 3: Datos del local -->
                 <div class="form-section">
+
+                    <div class="form-group">
+                        <label for="nombrePdv">Nombre PDV:</label>
+                        <input type="text" id="nombrePdv" name="nombrePdv" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="horarioAtencion">Horario de atención:</label>
+                        <input type="text" id="horarioAtencion" name="horarioAtencion" required>
+                    </div>
+
                     <div class="form-group">
                         <label for="calle_numero">Calle y número:</label>
                         <input type="text" id="calle_numero" name="calle_numero" required>
                     </div>
                     <div class="form-group">
-                        <label for="entre_calle">Entre calle:</label>
-                        <input type="text" id="entre_calle" name="entre_calle" required>
+                        <label for="entreCalle">Entre calle:</label>
+                        <input type="text" id="entreCalle" name="entreCalle" required>
                     </div>
                     <div class="form-group">
                         <label for="localidad">Localidad:</label>
@@ -68,8 +74,8 @@
                         <input type="text" id="provincia" name="provincia" required>
                     </div>
                     <div class="form-group">
-                        <label for="contacto_pdv">Contacto del PDV:</label>
-                        <input type="text" id="contacto_pdv" name="contacto_pdv" required>
+                        <label for="contactoPdv">Contacto del PDV:</label>
+                        <input type="text" id="contactoPdv" name="contactoPdv" required>
                     </div>
                     <div class="form-group">
                         <label for="telefono">Teléfono:</label>

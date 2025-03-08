@@ -1,19 +1,27 @@
+import os
 from flask_jwt_extended.exceptions import JWTExtendedException
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
-from flask import Flask #, jsonify
+from flask import Flask, request, redirect, url_for
 from flask_migrate import Migrate
 from config import Config
 from apps.database import db
 from apps.routes import cliente_bp, auth_bp # Importar el Blueprint
 from apps.monitoring import monitoreo_bp
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
 # Inicializar Flask
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app, supports_credentials=True)
+
+UPLOAD_FOLDER = 'uploads/logos/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Asegurar que la carpeta de uploads existe
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Inicializar Flask-Migrate
 migrate = Migrate(app, db)
@@ -47,6 +55,25 @@ app.register_blueprint(monitoreo_bp, url_prefix='/')
 @app.route('/')
 def home():
     return {"message": "API de Servicio Técnico funcionando"}
+
+@app.route('/upload_logo', methods=['POST'])
+def upload_logo():
+    if 'file' not in request.files:
+        return "No file part"
+    
+    file = request.files['file']
+    if file.filename == '':
+        return "No selected file"
+    
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+    
+    return f"File saved at {filepath}"
+
+
+
+
 
 if __name__ == '__main__':
    # print(app.url_map)
