@@ -23,6 +23,6 @@ if (verTecnicosBtn) {
 if (solicitarServicioBtn) {
     solicitarServicioBtn.addEventListener('click', (event) => {
         event.preventDefault(); // Evita que siga el href por defecto
-        window.location.href = "/auth/solicitudServicio"; // Redirige a la URL deseada
+        window.location.href = "/auth/solicitudServiciotecnico"; // Redirige a la URL deseada
     }); 
 }

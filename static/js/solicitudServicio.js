@@ -13,43 +13,78 @@ document.addEventListener("DOMContentLoaded", function () {
         solicitarServicioBtn.style.display = "none";
     });
 
-    // Generar número de solicitud automático (simulado)
-    const numeroSolicitud = Math.floor(Math.random() * 1000) + 1;
-    document.getElementById("numero_solicitud").value = `SOL-${numeroSolicitud}`;
-
     // Generar fecha de solicitud automática
-    const fechaActual = new Date().toLocaleDateString();
-    document.getElementById("fecha_solicitud").value = fechaActual;
+    const fechaActual = new Date().toLocaleDateString('es-ES', {day: '2-digit', month: '2-digit', year: 'numeric'});
+    document.getElementById("fechaSolicitud").value = fechaActual;
 
-    // Lógica para autocompletar campos basados en el cliente
-    const nroClienteInput = document.getElementById("nro_cliente");
-    nroClienteInput.addEventListener("change", function () {
-        const nroCliente = nroClienteInput.value;
-        // Simulación de datos de cliente (deberías reemplazar esto con una llamada a tu backend)
-        const cliente = {
-            razonSocial: "Cliente Ejemplo S.A.",
-            horarioAtencion: "09:00 - 18:00",
-            calleNumero: "Calle Falsa 123",
-            entreCalle: "Calle 1 y Calle 2",
-            localidad: "CABA",
-            provincia: "Buenos Aires",
-            contactoPDV: "Juan Pérez",
-            telefono: "1234-5678",
-        };
-
-        if (nroCliente === "123") {
-            document.getElementById("razon_social").value = cliente.razonSocial;
-            document.getElementById("horario_atencion").value = cliente.horarioAtencion;
-            document.getElementById("calle_numero").value = cliente.calleNumero;
-            document.getElementById("entre_calle").value = cliente.entreCalle;
-            document.getElementById("localidad").value = cliente.localidad;
-            document.getElementById("provincia").value = cliente.provincia;
-            document.getElementById("contacto_pdv").value = cliente.contactoPDV;
-            document.getElementById("telefono").value = cliente.telefono;
-        }
+    fileInput.addEventListener("change", function () {
+        fileNameSpan.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Ningún archivo seleccionado";
     });
 
-    // Manejar el envío del formulario
+    document.getElementById("logo").addEventListener("change", function () {
+        let fileName = this.files[0] ? this.files[0].name : "Ningún archivo seleccionado";
+        document.getElementById("file-name").textContent = fileName;
+    });
+    
+    closeFormArrow.addEventListener("click", function () {
+    formContainer.style.display = "none"; // Oculta el formulario
+    solicitarServicioBtn.style.display = "block"; // Muestra el botón "Solicitar nuevo servicio"
+});
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* document.addEventListener("DOMContentLoaded", function() {
+    // Cargar imágenes desde el servidor
+    fetch("/getLogos")
+    .then(response => response.json())
+    .then(logos => {
+        const select = document.getElementById("logo-select");
+        logos.forEach(logo => {
+            const option = document.createElement("option");
+            option.value = `/uploads/logos/${logo}`;  // Ruta de la imagen
+            option.textContent = logo;
+            select.appendChild(option);
+        });
+    })
+    .catch(error => console.error("Error cargando los logos:", error));
+
+    // Mostrar vista previa al seleccionar un logo
+    document.getElementById("logo-select").addEventListener("change", function() {
+        const selectedLogo = this.value;
+        if (selectedLogo) {
+            document.getElementById("preview").src = selectedLogo;
+            document.getElementById("preview").style.display = "block";
+        } else {
+            document.getElementById("preview").style.display = "none";
+        }
+    });
+}); */
+
+
+
+
+
+
+
+ /* // Manejar el envío del formulario
     solicitudForm.addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -67,20 +102,4 @@ document.addEventListener("DOMContentLoaded", function () {
             solicitarServicioBtn.style.display = "block"; // Muestra el botón nuevamente
         }, 1000);
         
-    });
-
-    fileInput.addEventListener("change", function () {
-        fileNameSpan.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Ningún archivo seleccionado";
-    });
-
-    document.getElementById("logo").addEventListener("change", function () {
-        let fileName = this.files[0] ? this.files[0].name : "Ningún archivo seleccionado";
-        document.getElementById("file-name").textContent = fileName;
-    });
-    
-    closeFormArrow.addEventListener("click", function () {
-    formContainer.style.display = "none"; // Oculta el formulario
-    solicitarServicioBtn.style.display = "block"; // Muestra el botón "Solicitar nuevo servicio"
-});
-
-});
+    }); */

@@ -6,7 +6,7 @@ from flask import Flask, request, redirect, url_for
 from flask_migrate import Migrate
 from config import Config
 from apps.database import db
-from apps.routes import cliente_bp, auth_bp # Importar el Blueprint
+from apps.routes import cliente_bp, auth_bp #logos_bp (por ahora sin utilizar) # Importar el Blueprint
 from apps.monitoring import monitoreo_bp
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -50,6 +50,7 @@ db.init_app(app)
 app.register_blueprint(cliente_bp, url_prefix='/')  # Para rutas generales
 app.register_blueprint(auth_bp, url_prefix='/auth')  # Para autenticación
 app.register_blueprint(monitoreo_bp, url_prefix='/')
+#app.register_blueprint(logos_bp, url_prefix='/') # Para subir logos --- por ahora sin utilizar
 
 
 @app.route('/')
@@ -70,6 +71,9 @@ def upload_logo():
     file.save(filepath)
     
     return f"File saved at {filepath}"
+
+
+
 
 
 

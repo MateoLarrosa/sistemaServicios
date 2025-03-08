@@ -24,12 +24,12 @@
                 <!-- Sección 1: Datos de la solicitud -->
                 <div class="form-section">
                     <div class="form-group">
-                        <label for="numero_solicitud">Número de solicitud:</label>
-                        <input type="text" id="numero_solicitud" name="numero_solicitud" readonly>
+                        <label for="numeroSolicitud">Número de solicitud:</label>
+                        <input type="text" id="numeroSolicitud" name="numeroSolicitud" value="0{{ nroSolicitudIncremental }}" readonly>
                     </div>
                     <div class="form-group">
-                        <label for="fecha_solicitud">Fecha de solicitud:</label>
-                        <input type="text" id="fecha_solicitud" name="fecha_solicitud" readonly>
+                        <label for="fechaSolicitud">Fecha de solicitud:</label>
+                        <input type="text" id="fechaSolicitud" name="fechaSolicitud" readonly>
                     </div>
                 </div>
 
@@ -37,11 +37,11 @@
                 <div class="form-section">
                     <div class="form-group">
                         <label for="nroCliente">Número de cliente:</label>
-                        <input type="text" id="nroCliente" name="nroCliente" required>
+                        <input type="text" id="nroCliente" name="nroCliente" value="{{ nroClienteBD }}" required>
                     </div>
                     <div class="form-group">
-                        <label for="razon_social">Razón social:</label>
-                        <input type="text" id="razon_social" name="razon_social" required>
+                        <label for="razonSocial">Razón social:</label>
+                        <input type="text" id="razonSocial" name="razonSocial" value="{{ razonSocialBD }}" required>
                     </div>
                 </div>
 
@@ -58,8 +58,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="calle_numero">Calle y número:</label>
-                        <input type="text" id="calle_numero" name="calle_numero" required>
+                        <label for="calleNumero">Calle y número:</label>
+                        <input type="text" id="calleNumero" name="calleNumero" required>
                     </div>
                     <div class="form-group">
                         <label for="entreCalle">Entre calle:</label>
@@ -113,7 +113,15 @@
                             <input type="file" id="logo" name="logo" accept="image/*" required>
                             <label for="logo" id="logoLabel">Seleccionar imagen</label>
                             <span id="file-name">Ningún archivo seleccionado</span>
+                            <!-- PARTE NUEVA -->
+                            <!-- <select id="logo-select" name="logo" class="form-control">
+                                <option value=""> seleccionar imagen</option>
+                            </select> -->
                         </div>
+                        <!-- Vista previa de la imagen seleccionada --> <!-- PARTE NUEVA -->
+                        <!-- <div style="margin-top: 10px;">
+                            <img id="preview" src="" alt="Vista previa" style="max-width: 150px; display: none;">
+                        </div> -->
                     </div>
                     
                 </div>

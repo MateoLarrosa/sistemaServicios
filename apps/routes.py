@@ -1,9 +1,9 @@
-import re
-from werkzeug.security import check_password_hash, generate_password_hash
+import re, os
+#from werkzeug.security import secure_filename
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response, current_app
 from apps.database import db
-from apps.models import Cliente, Usuario, Tecnico, Local, Activo, OrdenDeTrabajo, solicitudServicio
+from apps.models import Cliente, Usuario, Tecnico, Local, Activo,  solicitudServicio, OrdenDeTrabajo
 from apps.schemas import cliente_schema, clientes_schema
 from utils import admin_required, registrar_evento_auditoria, validar_cuit, validar_mail
 from datetime import datetime, timedelta
@@ -198,7 +198,7 @@ def register():
 
 
 ## REFRESH TOKEN
-ACCESS_TOKEN_EXPIRES = timedelta(minutes=15)  # Expira en 15 minutos
+ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)  # Expira en 15 minutos
 REFRESH_TOKEN_EXPIRES = timedelta(days=7)
 
 ## VARIABLES PARA EL CONTROL DE LOGIN FORZADO
@@ -391,56 +391,90 @@ def inicioTecnico():
 ######### SOLICITUD SERVICIO TECNICO -----------------------------------------------------------------------
 
 
-@auth_bp.route('/solicitudServicio', methods=['GET'])
+@auth_bp.route('/solicitudServiciotecnico', methods=['GET'])
 @jwt_required(locations=["cookies"])
-def solicitudServicio():
-    return render_template('solicitudServicio.html')  # Renderiza el archivo solicitudServicio.html
+def solicitudServicioTecnico():
 
+    nroSolicitudIncremental = solicitudServicio.query.count() + 1 
+
+    tipoUsuario = get_jwt()['tipoUsuario']
+
+    if tipoUsuario == 'Cliente':
+        cliente = Cliente.query.filter_by(idUsuario=get_jwt_identity()).first()
+        #cliente = Cliente.query.filter_by(idUsuario="2").first()
+        razonSocialBD = cliente.razonSocial
+        nroClienteBD = cliente.nroCliente
+        return render_template('solicitudServicio.html',nroSolicitudIncremental=nroSolicitudIncremental,razonSocialBD= razonSocialBD,nroClienteBD=nroClienteBD)  # Renderiza el archivo solicitudServicio.html
+    else:
+        return render_template('solicitudServicio.html',nroSolicitudIncremental=nroSolicitudIncremental)
 
 @auth_bp.route('/registrarSolicitudServicio', methods=['POST'])
 @jwt_required(locations=["cookies"])
 def registrarSolicitudServicio():
 
     data = request.form
+    print(data)
+    print("----------------------")
+    tipoUsuario = get_jwt()['tipoUsuario']
+    idCliente = get_jwt_identity()
+    if tipoUsuario == 'Admin':
+        
+        print(data['nroCliente'])
+        print("----------------------")
+        cliente = Cliente.query.filter_by(nroCliente = data['nroCliente']).first() #
+        print(cliente)
+        print("----------------------")
+        idCliente = cliente.id
+        if cliente.razonSocial != data['razonSocial'] or cliente.nroCliente != data['nroCliente']:
+            return jsonify({"error": "El cliente no coincide con la razón social o nroCliente"}), 400
 
-    """ cliente = Cliente(
-        nro_Cliente = request.form['nroCliente'],
-        razon_social = request.form['razonSocial'],
-    ) """
+    local = Local(
+        horarioAtencion = request.form['horarioAtencion'],
+        direccion = data['calleNumero'],
+        entreCalle = data['entreCalle'],
+        localidad = data['localidad'],
+        provincia = data['provincia'],
+        latitud = 0,  ## ver como llenar, por el momento 0
+        longitud = 0, ## ver como llear, por el momento 0
+        contacto = data['contactoPdv'],
+        telefono = data['telefono'],
+        nombre = data['nombrePdv'],
+        id_cliente = idCliente
+    )
 
-    cliente = Cliente.query.filter_by(idUsuario=get_jwt_identity()).first()
+    Activo(
+        nroActivo = data['nroActivo'],
+        marca = data['marca'],
+        modelo = data['modelo'],
+        nroSerie = data['nroSerie'],
+        logo = "uploads/logos" + data['logo'],
+    )
 
-    nroClienteBD = cliente.nroCliente
-    razonSocialBD = cliente.razonSocial
-
-    if nroClienteBD == request.form['nroCliente'] and razonSocialBD == request.form['razonSocial']:
-
-        local = Local(
-            horarioAtencion = request.form['horarioAtencion'],
-            direccion = request.form['calle'],
-            entreCalle = request.form['entreCalle'],
-            localidad = request.form['localidad'],
-            provincia = request.form['provincia'],
-            latitud = 0,  ## ver como llenar, por el momento 0
-            longitud = 0, ## ver como llear, por el momento 0
-            contacto = request.form['contactoPdv'],
-            telefono = request.form['telefono'],
-            nombre = request.form['nombrePdv'],
-        )
-
-        Activo(
-            nroActivo = request.form['nroActivo'],
-            marca = request.form['marca'],
-            modelo = request.form['modelo'],
-            nroSerie = request.form['nroSerie'],
-            logo = request.form['logo'],
-            falla = request.form['falla'],
-        )
-    else:
-        return jsonify({"error": "Los datos ingresados no coinciden con los datos del cliente"}), 400
+    solicitudServicio(
+        nroSolicitud = data['nroSolicitud'],
+        fecha = datetime.strptime(data['fechaSolicitud']),
+        falla = data['falla'],
+        id_cliente = idCliente,
+        id_local = local.id,
+        id_activo = Activo.id
+    )
 
 
+### POR EL MOMENTO NO SE UTILIZA ESTE METODO PARA TENER ALMACENADA LAS IMAGENES Y QUE EL USUARIO ELIJA UNA
 
+#logos_bp = Blueprint('logos', __name__)
+
+#@logos_bp.route('/getLogos', methods=['GET'])
+#def get_logos():
+    #"""Devuelve la lista de imágenes en uploads/logos/"""
+   # print("Hola estoy en /getLogos")  # 🔍 Depuración
+    #logos_folder = current_app.config['UPLOAD_FOLDER']
+    #try:
+    #    print(f"Directorio de logos: {logos_folder}")  # 🔍 Depuración
+     #   logos = [f for f in os.listdir(logos_folder) if f.endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+    #    return jsonify(logos)
+   # except Exception as e:
+   #     return jsonify({"error": str(e)}), 500
 
 
 

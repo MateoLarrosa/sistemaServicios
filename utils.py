@@ -75,4 +75,5 @@ def registrar_evento_auditoria(id_caso, id_usuario=None, id_cliente=None, id_tec
     db.session.add(nuevo_evento)
     db.session.commit()
 
-    
+    ## RUTA PARA CARGAR LOGOS -----------------------------------------------------------------------------------------------
+

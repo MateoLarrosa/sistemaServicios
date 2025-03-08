@@ -93,6 +93,8 @@ class solicitudServicio(db.Model):
     idActivo = db.Column(db.Integer, db.ForeignKey('activos.id', ondelete='SET NULL'))
     idLocal = db.Column(db.Integer, db.ForeignKey('locales.id', ondelete='SET NULL'))
     falla = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    fechaSolicitud = db.Column(db.DateTime, nullable=False)
+    nroSolicitud = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
 
 
 class OrdenDeTrabajo(db.Model):
@@ -149,7 +151,7 @@ class Activo(db.Model):
     nroSerie = db.Column(db.String(100, collation='Latin1_General_CI_AS'), unique=True, nullable=True)
     nroActivo = db.Column(db.Integer)
     estado = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
-    voltaje = db.Column(db.Float)
+    voltaje = db.Column(db.Float, nullable=True)
     poseeTierra = db.Column(db.Boolean, default=False)
 
 class Repuesto(db.Model):
