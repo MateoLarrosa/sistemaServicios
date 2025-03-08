@@ -5,5 +5,6 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'mssql+pyodbc://@MSI\\SQLEXPRESS/sistemaServicioTecnico?driver=ODBC+Driver+17+for+SQL+Server&Trusted_Connection=yes'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', '$2b$12$YSi0BHH8Hf6DS3no4.q8me7XodOFydFY/KKopNHiRv.wr3xVgdvke')
-    
+    JWT_ACCESS_TOKEN_EXPIRES = 3600
+    JWT_REFRESH_TOKEN_EXPIRES = 3600
 

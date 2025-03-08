@@ -7,17 +7,25 @@ from config import Config
 from apps.database import db
 from apps.routes import cliente_bp, auth_bp # Importar el Blueprint
 from apps.monitoring import monitoreo_bp
+from flask_cors import CORS
 
 load_dotenv()
 
 # Inicializar Flask
 app = Flask(__name__, static_folder='static', template_folder='templates')
-
+CORS(app, supports_credentials=True)
 
 # Inicializar Flask-Migrate
 migrate = Migrate(app, db)
 
 app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.JWT_ACCESS_TOKEN_EXPIRES
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = Config.JWT_REFRESH_TOKEN_EXPIRES
+
+#Configuracion de cookies
+app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+app.config["JWT_COOKIE_SECURE"] = False  # True si usas HTTPS
+app.config["JWT_COOKIE_CSRF_PROTECT"] = False  # Desactívalo por ahora
 
 # Inicializar JWT
 jwt = JWTManager(app)

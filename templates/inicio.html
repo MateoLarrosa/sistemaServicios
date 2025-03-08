@@ -10,7 +10,7 @@
 <main class="dashboard-main">
     <section class="welcome-section text-center">
         <div class="welcome-content">
-            <h2>Bienvenido, Administrador</h2>
+            <h2>Bienvenido, {{ nombreUsuario }}</h2>
             <p>Explora y gestiona todos los módulos del sistema.</p>
             <div class="welcome-stats">
                 <div class="stat-card">
@@ -31,8 +31,29 @@
             </div>
         </div>
     </section>
+    
 
+    
     <section class="modules-section">
+        <div class="module-card">
+            <i class="fas fa-tools module-icon"></i>
+            <h3>Solicitar servicio</h3>
+            <p>solicita un servicio tecnico</p>
+            <a href="#" id="solicitarServicioBtn" class="btn btn-primary">solicitar</a>
+        </div>
+        <div class="module-card">
+            <i class="fas fa-tools module-icon"></i>
+            <h3>Crear orden de servicio</h3>
+            <p>Genera tus ordenes</p>
+            <a href="#" id="crearServiciosBtn" class="btn btn-primary">Crear servicio</a>
+        </div>
+        <div class="module-card">
+            <i class="fas fa-tools module-icon"></i>
+            <h3>Mis servicios</h3>
+            <p>Visualiza el estado de tus servicios</p>
+            <a href="#" id="misServiciosBtn" class="btn btn-primary">ver miservicios</a>
+        </div>
+        {% if userType == "Admin" %}
         <div class="module-card">
             <i class="fas fa-tools module-icon"></i>
             <h3>Gestión de Servicios</h3>
@@ -50,6 +71,13 @@
             <h3>Gestión de Clientes</h3>
             <p>Administra la información de los clientes.</p>
             <a href="#" id="verClientesBtn" class="btn btn-primary">Ver Clientes</a>
+        </div>
+        {% endif %}
+        <div class="module-card">
+            <i class="fas fa-users module-icon"></i>
+            <h3>mi perfil</h3>
+            <p>Gestioná tu información personal</p>
+            <a href="#" id="miPerfilBtn" class="btn btn-primary">Ver mi perfil</a>
         </div>
     </section>
 </main>

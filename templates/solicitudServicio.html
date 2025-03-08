@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitud de Servicio - Services for Business Groups{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/solicitudServicio.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<main class="dashboard-main">
+    <section class="solicitud-section">
+        <h2>Solicitud de Servicio Técnico</h2>
+
+        <!-- Botón para mostrar el formulario -->
+        <div class="text-center">
+            <button id="solicitarServicioBtn" class="btn btn-primary">Solicitar nuevo servicio</button>
+        </div>
+
+        <!-- Contenedor del formulario (oculto inicialmente) -->
+        <div id="formContainer" style="display: none;">
+            <!-- Formulario dividido en 4 secciones -->
+            <form id="solicitudForm" class="solicitud-form">
+                <!-- Sección 1: Datos de la solicitud -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="numero_solicitud">Número de solicitud:</label>
+                        <input type="text" id="numero_solicitud" name="numero_solicitud" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_solicitud">Fecha de solicitud:</label>
+                        <input type="text" id="fecha_solicitud" name="fecha_solicitud" readonly>
+                    </div>
+                </div>
+
+                <!-- Sección 2: Datos del cliente -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="nro_cliente">Número de cliente:</label>
+                        <input type="text" id="nro_cliente" name="nro_cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="razon_social">Razón social:</label>
+                        <input type="text" id="razon_social" name="razon_social" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="horario_atencion">Horario de atención:</label>
+                        <input type="text" id="horario_atencion" name="horario_atencion" required>
+                    </div>
+                </div>
+
+                <!-- Sección 3: Datos del local -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="calle_numero">Calle y número:</label>
+                        <input type="text" id="calle_numero" name="calle_numero" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="entre_calle">Entre calle:</label>
+                        <input type="text" id="entre_calle" name="entre_calle" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="localidad">Localidad:</label>
+                        <input type="text" id="localidad" name="localidad" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="provincia">Provincia:</label>
+                        <input type="text" id="provincia" name="provincia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contacto_pdv">Contacto del PDV:</label>
+                        <input type="text" id="contacto_pdv" name="contacto_pdv" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" id="telefono" name="telefono" required>
+                    </div>
+                </div>
+
+                <!-- Sección 4: Datos del activo -->
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="n_activo">Número de activo:</label>
+                        <input type="text" id="n_activo" name="n_activo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="marca">Marca:</label>
+                        <input type="text" id="marca" name="marca" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modelo">Modelo:</label>
+                        <input type="text" id="modelo" name="modelo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="n_serie_equipo">Número de serie del equipo:</label>
+                        <input type="text" id="n_serie_equipo" name="n_serie_equipo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="falla">Falla:</label>
+                        <input type="text" id="falla" name="falla" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="logo">Logo:</label>
+                        <div class="custom-file">
+                            <input type="file" id="logo" name="logo" accept="image/*" required>
+                            <label for="logo" id="logoLabel">Seleccionar imagen</label>
+                            <span id="file-name">Ningún archivo seleccionado</span>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <!-- Botón de envío -->
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-primary">Enviar solicitud</button>
+
+                    <!-- Flecha para cerrar el formulario -->
+                    <div id="closeFormArrow" class="close-form-arrow">
+                        <i class="fas fa-chevron-up"></i>
+                    </div>
+
+                </div>
+                
+            </form>
+
+            <!-- Mensaje de carga (oculto inicialmente) -->
+            <div id="loadingMessage" class="loading-message" style="display: none;">
+                <p>Procesando solicitud...</p>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/solicitudServicio.js"></script>
+{% endblock %}

@@ -5,7 +5,9 @@ body, html {
     box-sizing: border-box;
     font-family: 'Poppins', Arial, sans-serif;
     background: linear-gradient(to bottom, #a2d9ff, #ffffff);
-    min-height: 100vh;
+    height: 100vh; /* Ocupar toda la altura */
+    display: flex;
+    flex-direction: column;
 }
 
 /* Sidebar */
@@ -79,6 +81,10 @@ body, html {
 .main-content {
     margin-left: 0;
     transition: margin-left 0.3s ease;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, #a2d9ff, #ffffff);
 }
 
 .main-content.open {
@@ -146,19 +152,28 @@ body, html {
     background-color: #3b8ec0;
 }
 
+/* Ajuste del contenido para expandirse */
 .dashboard-main {
-    max-width: 1200px;
-    margin: 0 auto;
+    flex-grow: 1;
     padding: 20px;
 }
 
-/* Footer */
+/* Contenedor principal para ocupar toda la pantalla */
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #a2d9ff, #ffffff);
+}
+
+/* Footer siempre al fondo */
 .dashboard-footer {
     background-color: #4da6e5;
     color: white;
     padding: 20px;
     text-align: center;
-    margin-top: 40px;
+    width: 100%;
+    margin-top: auto; /* Esto asegura que el footer se mantenga en la parte inferior */
 }
 
 .footer-content {
@@ -170,7 +185,6 @@ body, html {
 }
 
 .footer-section {
-    flex: 1;
     min-width: 200px;
     text-align: left;
 }
@@ -208,6 +222,7 @@ body, html {
     font-size: 12px;
     color: #e0e0e0;
 }
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

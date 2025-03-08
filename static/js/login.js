@@ -1,3 +1,62 @@
+/* document.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const logo = document.querySelector('.logo');
+    const submitButton = document.querySelector('.btn-primary');
+
+    // Función para mostrar mensajes de error
+    const showError = (message) => {
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+    };
+
+    // Función para limpiar los campos del formulario
+    const clearFormFields = () => {
+        document.getElementById('nombreUsuario').value = "";
+        document.getElementById('password').value = "";
+    };
+
+    // Función para manejar el efecto del logo titilando
+    const startLogoEffect = () => {
+        logo.classList.add('loading');
+        setTimeout(() => {
+            logo.classList.remove('loading');
+        }, 1500); // El logo titila durante 1.5 segundos
+    };
+
+    // Validación básica en el formulario de inicio de sesión
+    loginForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Evita la recarga de la página
+
+        const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        // Validación básica de los campos
+        if (!nombreUsuario || !password) {
+            showError("Por favor, completa todos los campos.");
+            startLogoEffect(); // Llama a la función para hacer titilar el logo
+            return;
+        }
+
+        // Deshabilitar el botón de enviar para evitar múltiples envíos
+        submitButton.disabled = true;
+        submitButton.classList.add('loading');
+
+        // Enviar el formulario de manera tradicional
+        loginForm.submit();
+    });
+
+    // Manejar mensajes de error desde el backend
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+
+    if (error) {
+        showError(error); // Mostrar el mensaje de error si existe
+        startLogoEffect(); // Hacer titilar el logo si hay un error
+    }
+}); */
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
@@ -16,62 +75,62 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('password').value = "";
     };
 
-    loginForm.addEventListener('submit', async (event) => {
+    // Función para manejar el efecto del logo titilando
+    const startLogoEffect = () => {
+        logo.classList.add('loading');
+        setTimeout(() => {
+            logo.classList.remove('loading');
+        }, 1500); // El logo titila durante 1.5 segundos
+    };
+
+    // Validación básica en el formulario de inicio de sesión
+    loginForm.addEventListener('submit', (event) => {
         event.preventDefault(); // Evita la recarga de la página
 
         const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
         const password = document.getElementById('password').value.trim();
 
-        // Validación básica
+        // Validación básica de los campos
         if (!nombreUsuario || !password) {
             showError("Por favor, completa todos los campos.");
+            startLogoEffect(); // Llama a la función para hacer titilar el logo
             return;
         }
 
-        // Inicia el efecto de carga
-        logo.classList.add('loading');
-        submitButton.classList.add('loading');
+        // Deshabilitar el botón de enviar para evitar múltiples envíos
         submitButton.disabled = true;
+        submitButton.classList.add('loading');
 
-        try {
-            const response = await fetch('/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombreUsuario, password }), // ✅ Enviar nombreUsuario en lugar de email
-            });
-
-            // **Aplica el setTimeout() en todos los casos**
-            setTimeout(async () => {
-                logo.classList.remove('loading');
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
-                const data = await response.json();
-                if (response.ok) {
-                    clearFormFields();
-                    sessionStorage.setItem("token", data.token); // Guardar token en sessionStorage
-                    window.location.href = "/auth/inicio";
-                } else {
-                    /* const data = await response.json(); */
-                    showError(data.error || "Credenciales inválidas. Inténtalo de nuevo.");
-                }
-            }, 1500); // Retraso de 1.5 segundos
-        } catch (error) {
-            console.error('Error en el inicio de sesión:', error);
-            setTimeout(() => {
-                showError("Ocurrió un error inesperado. Por favor, intenta más tarde.");
-                logo.classList.remove('loading');
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
-            }, 2500); // Retraso de 2.5 segundos también en caso de error
-        }
+        // Simular el envío del formulario (el backend de Flask se encargará de la redirección)
+        fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                nombreUsuario: nombreUsuario,
+                password: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                // Si hay un error, mostrar el mensaje de error en la interfaz
+                showError(data.error);
+                startLogoEffect();
+            }
+        })
+        .catch(error => {
+            showError("Error de conexión. Por favor, intenta nuevamente.");
+            startLogoEffect();
+        })
+        .finally(() => {
+            // Rehabilitar el botón de enviar
+            submitButton.disabled = false;
+            submitButton.classList.remove('loading');
+        });
     });
 
-    // Limpia el mensaje de error cuando se empieza a escribir en los campos
-    document.getElementById('nombreUsuario').addEventListener('input', () => {
-        errorMessage.style.display = "none";
-    });
 
-    document.getElementById('password').addEventListener('input', () => {
-        errorMessage.style.display = "none";
-    });
+
 });

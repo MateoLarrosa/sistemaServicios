@@ -1,10 +1,12 @@
+import re
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import get_jwt
 from functools import wraps
-from flask import jsonify, request
+from flask import jsonify, request, redirect, url_for
 from apps.database import db
 from apps.models import Auditoria, CasoAuditoria
 from datetime import datetime
+
 
 def admin_required(fn):
     """Restringe el acceso solo a usuarios administradores."""
@@ -19,6 +21,18 @@ def admin_required(fn):
         return fn(*args, **kwargs)
     
     return wrapper
+
+
+
+def validar_mail(mail):
+    """Valida que el mail tenga un formato correcto"""
+    patron = r"[\w\.-]+@[\w\.-]+\.\w+$"
+    return re.match(patron,mail)
+
+def validar_cuit(cuil):
+
+    """Valida que el CUIT tenga el formato correcto(11 numeros sin guiones)"""
+    return re.match(r"\d{11}", cuil)
 
 
 def cargar_casos_auditoria():

@@ -6,6 +6,18 @@
     <title>Login - Sistema Servicio Técnico</title>
     <link rel="stylesheet" href="/static/css/home.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- <script>
+        // Verificar si el usuario tiene un token en la cookie
+        if (!document.cookie.includes("access_token_cookie")) {
+            window.location.href = "/auth";
+        }
+    
+        // Bloquear el botón "Atrás"
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function () {
+            window.history.pushState(null, "", window.location.href);
+        };
+    </script> -->
 </head>
 <body>
     <!-- Contenedor principal -->
@@ -22,7 +34,7 @@
             <div class="login-card">
                 <img src="/static/image/LOGOsbg2.png" alt="Logo Empresa" class="logo">
                 <h1>Iniciar Sesión</h1>
-                <form id="loginForm">
+                <form id="loginForm" action="/auth/login" method="POST">
                     <div class="form-group">
                         <label for="nombreUsuario">Correo Electrónico</label>
                         <input type="text" id="nombreUsuario" name="nombreUsuario" placeholder="Ingresa tu usuario" required>
@@ -65,6 +77,7 @@
     
 
     <!-- Importar el archivo JavaScript -->
-    <script src="/static/js/login.js"></script>
+    <!-- <script src="/static/js/login.js"></script> -->
+    
 </body>
 </html>

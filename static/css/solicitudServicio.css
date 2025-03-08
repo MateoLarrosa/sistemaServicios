@@ -1,0 +1,232 @@
+/* Estilos específicos para la página de solicitud de servicio */
+
+.solicitud-section {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 40px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%; /* Asegurar que no sobresalga */
+    box-sizing: border-box; /* Incluir padding en el ancho total */
+}
+
+.solicitud-section h2 {
+    color: #4da6e5;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+    width: 100%; /* Asegurar que no sobresalga */
+    box-sizing: border-box; /* Incluir padding en el ancho total */
+}
+
+.form-group {
+    margin-bottom: 15px;
+    width: 100%; /* Asegurar que no sobresalga */
+    box-sizing: border-box; /* Incluir padding en el ancho total */
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    color: #4da6e5;
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-sizing: border-box; /* Incluir padding en el ancho total */
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
+    border-color: #4da6e5;
+    outline: none;
+    box-shadow: 0 0 10px rgba(77, 166, 229, 0.5);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background-color: #4da6e5;
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-sizing: border-box; /* Incluir padding en el ancho total */
+}
+
+.btn-primary:hover {
+    background-color: #368fcb;
+}
+
+.btn-primary:active {
+    transform: translateY(2px);
+}
+
+.loading-message {
+    text-align: center;
+    font-size: 18px;
+    color: #4da6e5;
+    margin-top: 20px;
+}
+
+/* Contenedor personalizado para el input file */
+.custom-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%; /* Asegurar que no sobresalga */
+    box-sizing: border-box; /* Incluir padding en el ancho total */
+}
+
+/* Ocultar el input original */
+.custom-file input[type="file"] {
+    display: none;
+}
+
+/* Botón personalizado */
+.custom-file label {
+    background-color: #4da6e5;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    font-size: 14px;
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 130px;
+    box-sizing: border-box; /* Incluir padding en el ancho total */
+}
+
+.custom-file label:hover {
+    background-color: #368fcb;
+}
+
+.custom-file-name {
+    font-size: 14px;
+    color: #333;
+}
+
+/* Estilos para la flecha de cierre */
+.close-form-arrow {
+    margin-top: 20px;
+    cursor: pointer;
+    color: #4da6e5;
+    font-size: 24px;
+    transition: color 0.3s ease, transform 0.3s ease;
+    text-align: center;
+}
+
+.close-form-arrow:hover {
+    color: #368fcb;
+    transform: translateY(3px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .solicitud-section {
+        padding: 20px;
+    }
+
+    .solicitud-section h2 {
+        font-size: 24px;
+    }
+
+    .form-section {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="file"] {
+        font-size: 14px;
+        padding: 8px;
+    }
+
+    .btn-primary {
+        font-size: 16px;
+        padding: 12px;
+    }
+
+    .custom-file label {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .close-form-arrow {
+        font-size: 20px;
+        margin-top: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .solicitud-section {
+        padding: 15px;
+    }
+
+    .solicitud-section h2 {
+        font-size: 20px;
+    }
+
+    .form-group label {
+        font-size: 12px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="file"] {
+        font-size: 12px;
+        padding: 6px;
+    }
+
+    .btn-primary {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .custom-file label {
+        font-size: 10px;
+        padding: 5px 8px;
+    }
+
+    .close-form-arrow {
+        font-size: 18px;
+        margin-top: 10px;
+    }
+
+    /* Asegurar que los contenedores no sobresalgan */
+    .solicitud-section,
+    .form-section,
+    .form-group,
+    .custom-file {
+        width: 100%;
+        max-width: 100%; /* Limitar el ancho máximo */
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}

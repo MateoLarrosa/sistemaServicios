@@ -18,3 +18,11 @@ if (verTecnicosBtn) {
         window.location.href = "/auth/gestionDeTecnicos"; // Redirige a la URL deseada
     }); 
 }
+
+
+if (solicitarServicioBtn) {
+    solicitarServicioBtn.addEventListener('click', (event) => {
+        event.preventDefault(); // Evita que siga el href por defecto
+        window.location.href = "/auth/solicitudServicio"; // Redirige a la URL deseada
+    }); 
+}

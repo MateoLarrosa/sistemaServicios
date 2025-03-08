@@ -1,30 +1,41 @@
 import re
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response, current_app
 from apps.database import db
 from apps.models import Cliente, Usuario, Tecnico
 from apps.schemas import cliente_schema, clientes_schema
-from utils import admin_required, registrar_evento_auditoria
+from utils import admin_required, registrar_evento_auditoria, validar_cuit, validar_mail
 from datetime import datetime, timedelta
 from apps.monitoring import usuarios_activos, time, monitoreo_bp
 
+
 cliente_bp = Blueprint('cliente', __name__)
+
 @cliente_bp.route('/auth')
-
-
 def login_page():
-    return render_template('home.html')
+
+    ### LA LOGICA PARA ELIMINAR LA COOKIEE TODAVIA NO FUNCIONA. SIGUE SIN MATAR LA SESION.
 
 
-def validar_mail(mail):
-    """Valida que el mail tenga un formato correcto"""
-    patron = r"[\w\.-]+@[\w\.-]+\.\w+$"
-    return re.match(patron,mail)
+    # Verificar si la cookie ya fue eliminada
+    if request.cookies.get('access_token_cookie'):
+        # Eliminar la cookie solo si existe
+        response = make_response(render_template('home.html'))
+        #response.set_cookie('access_token_cookie', '', expires=0, httponly=True, samesite='Strict')
+        response.delete_cookie('access_token')
+    else:
+        # Si la cookie ya fue eliminada, simplemente renderiza la página
+        response = make_response(render_template('home.html'))
 
-def validar_cuit(cuil):
+    # Configurar encabezados para evitar el almacenamiento en caché
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
 
-    """Valida que el CUIT tenga el formato correcto(11 numeros sin guiones)"""
-    return re.match(r"\d{11}", cuil)
+    return response
+    #return render_template('home.html')
+
 
 @cliente_bp.route('/clientes/<int:id>', methods=['GET'])
 @jwt_required()
@@ -155,12 +166,6 @@ def eliminar_cliente(id):
 
 ### RUTAS DE INICIO Y LOGIN DE USUARIO + FUNCIONES PARA VERIFICAR DATOS --------------------------------------------------------------------
 
-#auth_bp = Blueprint('auth', __name__)
-
-from flask import Blueprint, request, jsonify
-from apps.database import db
-from apps.models import Usuario
-
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
@@ -203,27 +208,28 @@ TIEMPO_BLOQUEO_MINUTOS = 10
 @auth_bp.route('/login', methods=['POST'])
 def login():
     """Autenticar un usuario con protección contra fuerza bruta y refresh token"""
-    data = request.get_json()
+    print("Hasta aca llegue ok")
+
+    username = request.form['nombreUsuario']
+    password = request.form['password']
 
     id_cliente = None
     id_tecnico = None
 
-    print(f"Datos recibidos: {data}")  # Log para ver los datos en consola
-
-    if not data or not data.get('nombreUsuario') or not data.get('password'):
+    if not username or not password:
         return respuesta_con_auditoria(
             401, 
             "Error al iniciar sesión, faltó completar un campo", 
             id_caso=2
         )
 
-    usuario = Usuario.query.filter_by(nombreUsuario=data.get('nombreUsuario')).first()
+    usuario = Usuario.query.filter_by(nombreUsuario=username).first()
     print(f"Usuario encontrado: {usuario}")  # Verifica si se encontró un usuario
     
     if not usuario:
         return respuesta_con_auditoria(
             401, 
-            f"No existe nombre de usuario ingresado = '{data.get('nombreUsuario')}'", 
+            f"No existe nombre de usuario ingresado = '{username}'", 
             id_caso=2
         )
 
@@ -255,16 +261,18 @@ def login():
             usuario.intentosLogin = 0  # Reiniciar intentos fallidos
 
     # Verificar la contraseña
-    if usuario.check_password(data.get('password')):
+    if usuario.check_password(password):
         usuario.intentosLogin = 0  # Reiniciar intentos fallidos
         usuario.ultimo_acceso = datetime.utcnow()
 
         # Generar access token y refresh token
         accessToken = create_access_token(
             identity=str(usuario.id),
-            additional_claims={"tipoUsuario": usuario.tipoUsuario},
+            additional_claims={"tipoUsuario": usuario.tipoUsuario, "nombreUsuario": usuario.nombreUsuario},
             expires_delta=ACCESS_TOKEN_EXPIRES
         )
+
+        print(f"Access Token: {accessToken}")  # Log para ver el access token
 
         # Registrar al usuario como activo en el monitoreo
         usuarios_activos[str(usuario.id)] = time.time()
@@ -274,6 +282,8 @@ def login():
             additional_claims={"tipoUsuario": usuario.tipoUsuario},
             expires_delta=REFRESH_TOKEN_EXPIRES
         )
+
+        print(f"Refresh Token: {refreshToken}")  # Log para ver el access token
 
         db.session.commit()
 
@@ -286,11 +296,23 @@ def login():
             detalle=f"Inicio de sesión exitoso para {usuario.nombreUsuario}"
         )
 
-        return jsonify({
-            "message": "Inicio de sesión exitoso",
-            "access_token": accessToken,
-            "refresh_token": refreshToken
-        }), 200
+        if usuario.tipoUsuario == "Admin":
+
+            response = make_response(redirect(url_for('auth.inicioAdmin')))
+            response.set_cookie('access_token_cookie', accessToken, httponly=True, secure=False)  # Cambia `secure=True` si usas HTTPS
+            return response
+        
+        elif usuario.tipoUsuario == "Cliente":
+
+            response = make_response(redirect(url_for('auth.inicioCliente')))
+            response.set_cookie('access_token_cookie', accessToken, httponly=True, secure=False)  # Cambia `secure=True` si usas HTTPS
+            return response
+        
+        elif usuario.tipoUsuario == "Tecnico":
+
+            response = make_response(redirect(url_for('auth.inicioTecnico')))
+            response.set_cookie('access_token_cookie', accessToken, httponly=True, secure=False)  # Cambia `secure=True` si usas HTTPS
+            return response
 
     # Incrementar intentos fallidos y bloquear si es necesario
     usuario.intentosLogin += 1
@@ -333,16 +355,62 @@ def respuesta_con_auditoria(codigo_http, mensaje, id_caso, usuario=None, id_clie
 
 ### RUTAS PARA REDIRIGIR A PAGINAS/TEMPLATES ----------------------------------------------------------------------------------
 
-
-@auth_bp.route('/')
-def login_page():
-    return render_template('home.html')
-
+@auth_bp.route('/pruebaPostman')
+def pruebaPostman():
+    return render_template('pruebaPostman.html')
 
 # RUTAS PARA EL HOME  QUE DERIVAN EN EL INICIO SEGUN EL USUARIO
-@auth_bp.route('/inicio', methods=['GET'])
+@auth_bp.route('/inicioAdmin', methods=['GET','POST'])
+
+@jwt_required(locations=["cookies"])
+@admin_required
 def inicioAdmin():
-    return render_template('inicio.html')  # Renderiza el archivo inicioAdmin.html
+
+     current_user = get_jwt()
+     return render_template('inicio.html', userType=current_user['tipoUsuario'], userName = current_user['nombreUsuario'])
+
+@auth_bp.route('/inicioCliente', methods=['GET','POST'])
+
+@jwt_required(locations=["cookies"])
+def inicioCliente():
+
+    current_user = get_jwt()
+    return render_template('inicio.html', userType=current_user['tipoUsuario'], userName = current_user['nombreUsuario'])
+
+@auth_bp.route('/inicioTecnico', methods=['GET','POST'])
+
+@jwt_required(locations=["cookies"])
+def inicioTecnico():
+
+    current_user = get_jwt()
+    return render_template('inicio.html', userType=current_user['tipoUsuario'], userName = current_user['nombreUsuario'])
+
+
+@auth_bp.route('/solicitudServicio', methods=['GET'])
+
+@jwt_required(locations=["cookies"])
+def solicitudServicio():
+    return render_template('solicitudServicio.html')  # Renderiza el archivo solicitudServicio.html
+
+
+
+
+@auth_bp.route('/redireccionar', methods=['GET'])
+@jwt_required()
+def redireccionar():
+    """Redirige a cada usuario según su tipo después del login"""
+    claims = get_jwt()
+    tipo_usuario = claims.get("tipoUsuario", "Cliente")  # Si no se encuentra, por defecto es Cliente
+
+    if tipo_usuario == "Admin":
+        return redirect(url_for('auth_bp.inicio'))
+    elif tipo_usuario == "Cliente":
+        return redirect(url_for('auth_bp.misServicios'))  # Si más adelante necesitas una vista específica
+    elif tipo_usuario == "Tecnico":
+        return redirect(url_for('auth_bp.inicio'))
+    
+    # Si el tipo de usuario no está definido, redirigir al login
+    return redirect(url_for('auth_bp.login_page'))
 
 ## ------------------- NUEVA RUTA PARA GENERAR EL REFRESH TOKEN
 
@@ -357,15 +425,8 @@ def refresh():
 
     nuevo_access_token = create_access_token(
         identity=usuario_id,
-        additional_claims={"tipoUsuario": usuario.tipoUsuario},  # Usar el tipo de usuario real
+        additional_claims={"tipoUsuario": usuario.tipoUsuario, "nombreUsuario": usuario.nombreUsuario},  # Usar el tipo de usuario real
         expires_delta=timedelta(minutes=15)
     )
 
     return jsonify({"access_token": nuevo_access_token}), 200
-
-
-
-# RUTAS PARA EL INICIO DEL ADMINISTRADOR
-@auth_bp.route('/misServicios', methods=['GET'])
-def misServicios():
-    return render_template('misServicios.html')  # Renderiza el archivo serviciosAdmin.html
