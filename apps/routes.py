@@ -3,7 +3,7 @@ import re, os
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response, current_app
 from apps.database import db
-from apps.models import Cliente, Usuario, Tecnico, Local, Activo,  solicitudServicio, OrdenDeTrabajo
+from apps.models import Cliente, Usuario, Tecnico, Local, Activo,  solicitudServicio, OrdenDeTrabajo, EquiposDeFrio
 from apps.schemas import cliente_schema, clientes_schema
 from utils import admin_required, registrar_evento_auditoria, validar_cuit, validar_mail
 from datetime import datetime, timedelta
@@ -413,19 +413,27 @@ def solicitudServicioTecnico():
 def registrarSolicitudServicio():
 
     data = request.form
+    print("Esto es lo que se anoto en el formulario: ")
     print(data)
     print("----------------------")
     tipoUsuario = get_jwt()['tipoUsuario']
     idCliente = get_jwt_identity()
     if tipoUsuario == 'Admin':
-        
+        print("Este es el numero del cliente que se puso en el formulario: ")
         print(data['nroCliente'])
         print("----------------------")
         cliente = Cliente.query.filter_by(nroCliente = data['nroCliente']).first() #
+        print("Estos son los datos que trae el cliente de la BD:")
         print(cliente)
         print("----------------------")
         idCliente = cliente.id
         if cliente.razonSocial != data['razonSocial'] or cliente.nroCliente != data['nroCliente']:
+            print("Estos son los datos que rechaza:")
+            print(cliente.razonSocial)
+            print(data['razonSocial'])
+            print(cliente.nroCliente)
+            print(data['nroCliente'])
+            print("----------------------")
             return jsonify({"error": "El cliente no coincide con la razón social o nroCliente"}), 400
 
     local = Local(
@@ -442,11 +450,13 @@ def registrarSolicitudServicio():
         id_cliente = idCliente
     )
 
+
+
     Activo(
         nroActivo = data['nroActivo'],
         marca = data['marca'],
         modelo = data['modelo'],
-        nroSerie = data['nroSerie'],
+        nroSerie = data['nroSerieEquipo'],
         logo = "uploads/logos" + data['logo'],
     )
 
@@ -458,6 +468,27 @@ def registrarSolicitudServicio():
         id_local = local.id,
         id_activo = Activo.id
     )
+
+@auth_bp.route('/getEquipo', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_equipo():
+    modelo = request.args.get('modelo')
+    print(modelo)
+    if not modelo:
+        return jsonify({"error": "Modelo no proporcionado"}), 400
+
+    equipo = EquiposDeFrio.query.filter_by(modelo=modelo).first()
+
+    if not equipo:
+        return jsonify({"error": "Modelo no encontrado"}), 404
+
+    return jsonify({
+        "marca": equipo.marca,
+        "logo": equipo.logo if equipo.logo else "uploads/logos/pruebaLogo.jpg"
+    })
+
+
+
 
 
 ### POR EL MOMENTO NO SE UTILIZA ESTE METODO PARA TENER ALMACENADA LAS IMAGENES Y QUE EL USUARIO ELIJA UNA

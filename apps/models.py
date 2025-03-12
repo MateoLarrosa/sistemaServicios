@@ -146,7 +146,6 @@ class Activo(db.Model):
     idLocal = db.Column(db.Integer, db.ForeignKey('locales.id', ondelete='SET NULL'))
     modelo = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
     marca = db.Column(db.String(50, collation='Latin1_General_CI_AS'))
-    logo = db.Column(db.String(255, collation='Latin1_General_CI_AS'))
     descripcion = db.Column(db.Text(collation='Latin1_General_CI_AS'))
     nroSerie = db.Column(db.String(100, collation='Latin1_General_CI_AS'), unique=True, nullable=True)
     nroActivo = db.Column(db.Integer)
@@ -209,4 +208,5 @@ class EquiposDeFrio(db.Model):
     marca = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     modelo = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     puerta = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
-
+    detallePuerta = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=True)
+    logo = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=True)

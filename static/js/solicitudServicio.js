@@ -21,20 +21,51 @@ document.addEventListener("DOMContentLoaded", function () {
         fileNameSpan.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Ningún archivo seleccionado";
     });
 
-    document.getElementById("logo").addEventListener("change", function () {
+    /* document.getElementById("logo").addEventListener("change", function () {
         let fileName = this.files[0] ? this.files[0].name : "Ningún archivo seleccionado";
         document.getElementById("file-name").textContent = fileName;
-    });
+    }); */
     
     closeFormArrow.addEventListener("click", function () {
     formContainer.style.display = "none"; // Oculta el formulario
     solicitarServicioBtn.style.display = "block"; // Muestra el botón "Solicitar nuevo servicio"
 });
-
 });
 
 
+document.addEventListener("DOMContentLoaded", function () {
+    const modeloInput = document.getElementById("modelo");
+    const marcaInput = document.getElementById("marca");
+    const logoInput = document.getElementById("logo");
 
+    modeloInput.addEventListener("change", function () {
+        const modelo = modeloInput.value;
+
+        if (modelo.trim() === "") return;
+        console.log("Ejecutando fetch con modelo:", modelo);
+        fetch(`http://127.0.0.1:5000/auth/getEquipo?modelo=${modelo}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error("Error:", data.error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No se encontró el modelo solicitado. Por favor, verifica la información e intenta nuevamente.',
+                    });
+                    marcaInput.value = "";
+                    logoInput.value = "";
+                    document.getElementById("file-name").textContent = "Ningún archivo seleccionado";
+                } else {
+                    console.log("Datos recibidos:", data); // Para ver si llega respuesta del backend
+                    marcaInput.value = data.marca;
+                    logoInput.value = data.logo; // Si el logo es NULL, vendrá con la imagen por defecto
+                    document.getElementById("file-name").textContent = data.logo;
+                }
+            })
+            .catch(error => console.error("Error al obtener el equipo:", error));
+    });
+});
 
 
 
