@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Elementos del DOM
     const solicitarServicioBtn = document.getElementById("solicitarServicioBtn");
     const formContainer = document.getElementById("formContainer");
     const solicitudForm = document.getElementById("solicitudForm");
@@ -6,66 +7,148 @@ document.addEventListener("DOMContentLoaded", function () {
     const fileInput = document.getElementById("logo");
     const fileNameSpan = document.getElementById("file-name");
     const closeFormArrow = document.getElementById("closeFormArrow");
-
-    // Mostrar el formulario al hacer clic en "Solicitar nuevo servicio"
-    solicitarServicioBtn.addEventListener("click", function () {
-        formContainer.style.display = "block";
-        solicitarServicioBtn.style.display = "none";
-    });
-
-    // Generar fecha de solicitud automática
-    const fechaActual = new Date().toLocaleDateString('es-ES', {day: '2-digit', month: '2-digit', year: 'numeric'});
-    document.getElementById("fechaSolicitud").value = fechaActual;
-
-    fileInput.addEventListener("change", function () {
-        fileNameSpan.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : "Ningún archivo seleccionado";
-    });
-
-    /* document.getElementById("logo").addEventListener("change", function () {
-        let fileName = this.files[0] ? this.files[0].name : "Ningún archivo seleccionado";
-        document.getElementById("file-name").textContent = fileName;
-    }); */
-    
-    closeFormArrow.addEventListener("click", function () {
-    formContainer.style.display = "none"; // Oculta el formulario
-    solicitarServicioBtn.style.display = "block"; // Muestra el botón "Solicitar nuevo servicio"
-});
-});
-
-
-document.addEventListener("DOMContentLoaded", function () {
     const modeloInput = document.getElementById("modelo");
     const marcaInput = document.getElementById("marca");
     const logoInput = document.getElementById("logo");
+    const inputFalla = document.getElementById("falla");
+    const dataListFallas = document.getElementById("fallas-list");
 
-    modeloInput.addEventListener("change", function () {
-        const modelo = modeloInput.value;
+    // 🟢 Mostrar el formulario al hacer clic en "Solicitar nuevo servicio"
+    if (solicitarServicioBtn && formContainer) {
+        solicitarServicioBtn.addEventListener("click", function () {
+            formContainer.style.display = "block";
+            solicitarServicioBtn.style.display = "none";
+        });
+    }
 
-        if (modelo.trim() === "") return;
-        console.log("Ejecutando fetch con modelo:", modelo);
-        fetch(`http://127.0.0.1:5000/auth/getEquipo?modelo=${modelo}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error("Error:", data.error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'No se encontró el modelo solicitado. Por favor, verifica la información e intenta nuevamente.',
+    // 🟢 Cerrar formulario
+    if (closeFormArrow) {
+        closeFormArrow.addEventListener("click", function () {
+            formContainer.style.display = "none"; 
+            solicitarServicioBtn.style.display = "block";
+        });
+    }
+
+    // 🟢 Generar fecha de solicitud automática
+    const fechaActual = new Date().toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const fechaSolicitudInput = document.getElementById("fechaSolicitud");
+    if (fechaSolicitudInput) fechaSolicitudInput.value = fechaActual;
+
+    // 🟢 Detectar cambio en el input de "modelo" para buscar datos
+    if (modeloInput) {
+        modeloInput.addEventListener("change", function () {
+            const modelo = modeloInput.value.trim();
+            if (modelo === "") return;
+
+            console.log("Ejecutando fetch con modelo:", modelo);
+            fetch(`/auth/getEquipo?modelo=${modelo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error("Error:", data.error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'No se encontró el modelo solicitado. Por favor, verifica la información e intenta nuevamente.',
+                        });
+                        marcaInput.value = "";
+                        logoInput.value = "";
+                        fileNameSpan.textContent = "Ningún archivo seleccionado";
+                    } else {
+                        console.log("Datos recibidos:", data);
+                        marcaInput.value = data.marca;
+                        logoInput.value = data.logo || ""; // Evitar que sea undefined
+                        fileNameSpan.textContent = data.logo || "Ningún archivo seleccionado";
+                    }
+                }) 
+                .catch(error => console.error("Error al obtener el equipo:", error));
+        });
+    }
+
+    // Cargar fallas en el datalist al hacer clic en el input
+    if (inputFalla && dataListFallas) {
+        // Cargar las fallas al hacer clic en el input
+        inputFalla.addEventListener("focus", function () {
+            if (dataListFallas.children.length === 0) { // Solo cargar si no hay opciones ya cargadas
+                fetch('/auth/getTiposFalla', {
+                    method: 'GET',
+                    credentials: 'include' // Para enviar cookies de sesión
+                })
+                .then(response => response.json())
+                .then(fallas => {
+                    dataListFallas.innerHTML = ''; // Limpiar opciones anteriores
+
+                    fallas.forEach(falla => {
+                        const option = document.createElement("option");
+                        option.value = `${falla.tipo} = ${falla.descripcion}`;
+                        dataListFallas.appendChild(option);
                     });
-                    marcaInput.value = "";
-                    logoInput.value = "";
-                    document.getElementById("file-name").textContent = "Ningún archivo seleccionado";
-                } else {
-                    console.log("Datos recibidos:", data); // Para ver si llega respuesta del backend
-                    marcaInput.value = data.marca;
-                    logoInput.value = data.logo; // Si el logo es NULL, vendrá con la imagen por defecto
-                    document.getElementById("file-name").textContent = data.logo;
-                }
+
+                    // Forzar la visualización del datalist
+                    inputFalla.setAttribute("list", "fallas-list");
+                    inputFalla.focus(); // Forzar el focus nuevamente para mostrar el datalist
+                })
+                .catch(error => console.error("Error al obtener las fallas:", error));
+            }
+        });
+    }
+
+    // 🟢 Cargar imágenes desde el servidor para logos
+    const logoSelect = document.getElementById("logo-select");
+    const preview = document.getElementById("preview");
+    if (logoSelect) {
+        fetch("/auth/getLogos")
+            .then(response => response.json())
+            .then(logos => {
+                logos.forEach(logo => {
+                    const option = document.createElement("option");
+                    option.value = `/uploads/logos/${logo}`;
+                    option.textContent = logo;
+                    logoSelect.appendChild(option);
+                });
             })
-            .catch(error => console.error("Error al obtener el equipo:", error));
-    });
+            .catch(error => console.error("Error cargando los logos:", error));
+
+        logoSelect.addEventListener("change", function () {
+            const selectedLogo = this.value;
+            if (selectedLogo) {
+                preview.src = selectedLogo;
+                preview.style.display = "block";
+            } else {
+                preview.style.display = "none";
+            }
+        });
+    }
+
+    // 🟢 Manejar el envío del formulario con mensaje de carga
+    if (solicitudForm) {
+        solicitudForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            solicitudForm.style.display = "none";
+            loadingMessage.style.display = "block";
+
+            setTimeout(function () {
+                loadingMessage.style.display = "none";
+                solicitudForm.style.display = "block";
+                solicitudForm.reset();
+                fileNameSpan.textContent = "Ningún archivo seleccionado";
+                formContainer.style.display = "none";
+                solicitarServicioBtn.style.display = "block";
+            }, 1000);
+        });
+    }
 });
+
+
+
+
+
+
+
+
+
+
 
 
 

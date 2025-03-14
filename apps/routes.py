@@ -3,7 +3,7 @@ import re, os
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt, create_refresh_token
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, make_response, current_app
 from apps.database import db
-from apps.models import Cliente, Usuario, Tecnico, Local, Activo,  solicitudServicio, OrdenDeTrabajo, EquiposDeFrio
+from apps.models import Cliente, Usuario, Tecnico, Local, Activo,  solicitudServicio, OrdenDeTrabajo, EquiposDeFrio, tiposDeFalla, tiposDeServicio
 from apps.schemas import cliente_schema, clientes_schema
 from utils import admin_required, registrar_evento_auditoria, validar_cuit, validar_mail
 from datetime import datetime, timedelta
@@ -469,6 +469,8 @@ def registrarSolicitudServicio():
         id_activo = Activo.id
     )
 
+
+#### RUTAS PARA OBTENER DATOS DE LOS EQUIPOS DE FRIO SEGUN EL MODELO ------------------------------------------------------------------
 @auth_bp.route('/getEquipo', methods=['GET'])
 @jwt_required(locations=["cookies"])
 def get_equipo():
@@ -486,6 +488,18 @@ def get_equipo():
         "marca": equipo.marca,
         "logo": equipo.logo if equipo.logo else "uploads/logos/pruebaLogo.jpg"
     })
+
+
+@auth_bp.route('/getTiposFalla', methods=['GET'])
+@jwt_required(locations=["cookies"])
+def get_tipos_falla():
+    tipos_falla = tiposDeFalla.query.all()  # Esto devuelve una lista de objetos
+    print(tipos_falla)  # Verifica que estás obteniendo datos correctamente
+    
+    return jsonify([
+        {"id": tipo.id, "tipo": tipo.tipoFalla, "descripcion": tipo.descripcion} 
+        for tipo in tipos_falla
+    ])
 
 
 

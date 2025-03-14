@@ -210,3 +210,15 @@ class EquiposDeFrio(db.Model):
     puerta = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
     detallePuerta = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=True)
     logo = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=True)
+
+class tiposDeFalla(db.Model):
+    __tableName__ = 'tiposDeFalla'
+    id = db.Column(db.Integer, primary_key=True)
+    tipoFalla = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    descripcion = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+
+class tiposDeServicio(db.Model):
+    __tableName__ = 'tiposDeServicio'
+    id = db.Column(db.Integer, primary_key=True)
+    tipoServicio = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)
+    descripcion = db.Column(db.String(255, collation='Latin1_General_CI_AS'), nullable=False)

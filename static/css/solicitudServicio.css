@@ -142,6 +142,41 @@
     transform: translateY(3px);
 }
 
+/* Estilos para la el dataList de los tipos de falla*/
+
+/* Estilos para el datalist */
+/* Estilos para el datalist */
+#fallas-list {
+    position: absolute;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    width: calc(100% - 2px); /* Adjust width to match the input */
+}
+
+#fallas-list option {
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#fallas-list option:hover {
+    background-color: #d3d1d1;
+}
+
+/* Mostrar el datalist cuando el input está enfocado */
+input[list]:focus + datalist {
+    display: block;
+}
+
+
+
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .solicitud-section {
