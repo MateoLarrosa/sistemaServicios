@@ -9,9 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const closeFormArrow = document.getElementById("closeFormArrow");
     const modeloInput = document.getElementById("modelo");
     const marcaInput = document.getElementById("marca");
-    const logoInput = document.getElementById("logo");
-    const inputFalla = document.getElementById("falla");
-    const dataListFallas = document.getElementById("fallas-list");
+    const logoPreview = document.getElementById("logoPreview"); // Elemento img para el logo
+    const inputTipoFalla = document.getElementById('tipoFalla');
+    const optionsList = document.getElementById('tipoFalla-list');
+    const selectWrapper = document.querySelector('#tipoFalla-container .select-wrapper'); // Selecciona el select-wrapper dentro del contenedor correcto
+
 
     // 🟢 Mostrar el formulario al hacer clic en "Solicitar nuevo servicio"
     if (solicitarServicioBtn && formContainer) {
@@ -52,46 +54,62 @@ document.addEventListener("DOMContentLoaded", function () {
                             text: 'No se encontró el modelo solicitado. Por favor, verifica la información e intenta nuevamente.',
                         });
                         marcaInput.value = "";
-                        logoInput.value = "";
-                        fileNameSpan.textContent = "Ningún archivo seleccionado";
+                        logoPreview.style.display = "none"; // Oculta la imagen si hay error
                     } else {
                         console.log("Datos recibidos:", data);
                         marcaInput.value = data.marca;
-                        logoInput.value = data.logo || ""; // Evitar que sea undefined
-                        fileNameSpan.textContent = data.logo || "Ningún archivo seleccionado";
+                        if (data.logo) {
+                            logoPreview.src = data.logo;
+                            logoPreview.style.display = "block"; // Muestra la imagen si hay logo
+                        } else {
+                            logoPreview.style.display = "none"; // Oculta la imagen si no hay logo
+                        }
                     }
                 }) 
                 .catch(error => console.error("Error al obtener el equipo:", error));
         });
     }
 
-    // Cargar fallas en el datalist al hacer clic en el input
-    if (inputFalla && dataListFallas) {
-        // Cargar las fallas al hacer clic en el input
-        inputFalla.addEventListener("focus", function () {
-            if (dataListFallas.children.length === 0) { // Solo cargar si no hay opciones ya cargadas
-                fetch('/auth/getTiposFalla', {
-                    method: 'GET',
-                    credentials: 'include' // Para enviar cookies de sesión
-                })
-                .then(response => response.json())
-                .then(fallas => {
-                    dataListFallas.innerHTML = ''; // Limpiar opciones anteriores
+            // Carga las opciones desde el servidor
+        fetch("/auth/getTiposFalla")
+        .then(response => response.json())
+        .then(data => {
+            // Limpia la lista antes de agregar las nuevas opciones
+            optionsList.innerHTML = "";
 
-                    fallas.forEach(falla => {
-                        const option = document.createElement("option");
-                        option.value = `${falla.tipo} = ${falla.descripcion}`;
-                        dataListFallas.appendChild(option);
-                    });
+            // Agrega las opciones a la lista
+            data.forEach(tipo => {
+                let option = document.createElement("li");
+                option.textContent = tipo.tipo;
+                optionsList.appendChild(option);
+            });
 
-                    // Forzar la visualización del datalist
-                    inputFalla.setAttribute("list", "fallas-list");
-                    inputFalla.focus(); // Forzar el focus nuevamente para mostrar el datalist
-                })
-                .catch(error => console.error("Error al obtener las fallas:", error));
-            }
+            // Agrega event listeners a las opciones
+            optionsList.querySelectorAll('li').forEach(option => {
+                option.addEventListener('click', () => {
+                    inputTipoFalla.value = option.textContent;
+                    optionsList.style.display = 'none'; // Cierra la lista
+                });
+            });
+        })
+        .catch(error => {
+            console.error("Error al cargar tipos de falla:", error);
+            inputTipoFalla.placeholder = "Error al cargar las opciones";
         });
-    }
+
+        // Muestra/oculta la lista al hacer clic en el input
+        inputTipoFalla.addEventListener('click', () => {
+        optionsList.style.display = optionsList.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Cierra la lista si se hace clic fuera del select-wrapper
+        document.addEventListener('click', (event) => {
+        if (!selectWrapper.contains(event.target)) {
+            optionsList.style.display = 'none';
+        }
+        });
+
+
 
     // 🟢 Cargar imágenes desde el servidor para logos
     const logoSelect = document.getElementById("logo-select");
